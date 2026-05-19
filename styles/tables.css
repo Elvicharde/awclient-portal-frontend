@@ -1,153 +1,179 @@
+/* ── Data table ──────────────────────────────────────────────────────── */
+
 .table-container {
-  width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
   width: 100%;
-  min-width: 760px;
   border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
-.data-table th,
-.data-table td {
-  padding: 0.875rem var(--space-6);
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid var(--color-border);
+/* ── Header row ──────────────────────── */
+.data-table thead tr {
+  border-bottom: 2px solid var(--color-border);
 }
 
 .data-table th {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  background: #fbfcfd;
+  color: var(--color-text-subtle);
+  background: var(--color-surface-muted);
+  white-space: nowrap;
+  user-select: none;
 }
 
-.data-table tbody tr {
-  transition: background-color var(--transition);
+.data-table th:first-child {
+  border-radius: 0;
 }
 
-.data-table tbody tr:hover {
-  background: #fbfcfd;
-}
-
-.data-table tbody tr.is-selected {
-  background: var(--color-primary-soft);
-}
-
-.data-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.data-table strong {
-  display: block;
-  font-size: 0.925rem;
-}
-
-.table-subtext {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.5rem;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  line-height: 1;
-  border-radius: 999px;
-}
-
-.badge-success {
-  color: var(--color-success);
-  background: var(--color-success-soft);
-}
-
-.badge-warning {
-  color: var(--color-warning);
-  background: var(--color-warning-soft);
-}
-
-.badge-neutral {
-  color: var(--color-text-muted);
-  background: var(--color-neutral-soft);
-}
-
+/* ── Sort button ─────────────────────── */
 .table-sort {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 4px;
+  background: none;
+  border: none;
   padding: 0;
-  color: inherit;
   font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  background: transparent;
-  border: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  transition: color var(--transition);
+  white-space: nowrap;
+}
+
+.table-sort:hover {
+  color: var(--color-navy-700);
 }
 
 .table-sort::after {
-  color: var(--color-text-muted);
-  content: "↕";
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-bottom: 4px solid currentColor;
+  opacity: 0.35;
+  transition:
+    opacity var(--transition),
+    transform var(--transition);
 }
 
-.table-sort.is-active::after {
-  content: "↓";
+.table-sort[aria-sort="ascending"]::after {
+  opacity: 1;
+  transform: rotate(0deg);
+  color: var(--color-accent);
 }
 
-.table-sort.is-active.sort-asc::after {
-  content: "↑";
+.table-sort[aria-sort="descending"]::after {
+  opacity: 1;
+  transform: rotate(180deg);
+  color: var(--color-accent);
 }
 
-.skeleton-row td {
-  padding: var(--space-6);
+/* ── Body rows ───────────────────────── */
+.data-table tbody tr {
+  border-bottom: 1px solid var(--color-border-muted);
+  transition: background var(--transition);
 }
 
-.skeleton-line {
+.data-table tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-navy-50);
+}
+
+.data-table td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.data-table td strong {
   display: block;
-  width: 100%;
-  height: 1rem;
-  background: linear-gradient(
-    90deg,
-    var(--color-neutral-soft),
-    var(--color-surface-muted),
-    var(--color-neutral-soft)
-  );
-  background-size: 200% 100%;
-  border-radius: var(--radius-sm);
-  animation: shimmer 1100ms linear infinite;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-navy-900);
+  margin-bottom: 2px;
 }
 
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-.empty-state {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  padding: var(--space-8);
-  text-align: center;
-  border-top: 1px solid var(--color-border);
-}
-
-.empty-state p {
+/* Sub-text inside table cell */
+.table-subtext {
+  display: block;
+  font-size: 0.775rem;
   color: var(--color-text-muted);
+  font-weight: 400;
 }
 
-@media (max-width: 700px) {
-  .data-table th,
-  .data-table td {
-    padding: 0.875rem var(--space-4);
-  }
+/* ── Download button variant ─────────── */
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3125rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-navy-800);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+  white-space: nowrap;
+}
+
+.download-button:hover,
+.download-button:focus-visible {
+  background: var(--color-gold-100);
+  border-color: var(--color-border-gold);
+  color: var(--color-gold-900);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Download icon */
+.download-button::before {
+  content: "↓";
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+/* ── Report type tag ─────────────────── */
+.report-type-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.175rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+}
+
+.report-type-tag.sacs {
+  color: var(--color-navy-800);
+  background: var(--color-navy-50);
+  border: 1px solid rgba(36, 84, 166, 0.15);
+}
+
+.report-type-tag.tcc {
+  color: var(--color-gold-900);
+  background: var(--color-gold-100);
+  border: 1px solid var(--color-border-gold);
 }

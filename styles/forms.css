@@ -1,3 +1,5 @@
+/* ── Form grid ───────────────────────────────────────────────────────── */
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -12,22 +14,21 @@
   display: grid;
   gap: var(--space-4);
   padding: var(--space-6);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-muted);
 }
 
 .form-section.is-collapsed .form-grid,
 .form-section.is-collapsed .form-field {
   display: none;
 }
-
 .form-section:last-child {
   border-bottom: 0;
 }
-
 .form-section h3 {
-  color: var(--color-text);
+  color: var(--color-navy-900);
 }
 
+/* ── Form fields ─────────────────────── */
 .form-field {
   display: grid;
   gap: var(--space-2);
@@ -35,15 +36,18 @@
 }
 
 .form-field span {
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
 }
 
 .form-control {
   width: 100%;
-  min-height: 2.625rem;
-  padding: 0.625rem 0.75rem;
+  min-height: 2.5rem;
+  padding: 0.5625rem 0.75rem;
+  font-size: 0.9rem;
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -51,7 +55,8 @@
   outline: none;
   transition:
     border-color var(--transition),
-    box-shadow var(--transition);
+    box-shadow var(--transition),
+    background var(--transition);
 }
 
 textarea.form-control {
@@ -59,71 +64,126 @@ textarea.form-control {
 }
 
 .form-control::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-text-subtle);
+}
+
+.form-control:hover {
+  border-color: #b8c8e0;
 }
 
 .form-control:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  border-color: var(--color-navy-600);
+  box-shadow: 0 0 0 3px rgba(36, 84, 166, 0.12);
+  background: #fff;
 }
 
+/* ── Search field ────────────────────── */
 .search-field {
   width: min(100%, 28rem);
 }
 
+/* ── Buttons ─────────────────────────── */
 .button,
 .action-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4em;
   min-height: 2.375rem;
-  padding: 0.5rem 0.875rem;
-  font-weight: 700;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   line-height: 1.2;
+  letter-spacing: 0.01em;
   border-radius: var(--radius-md);
   transition:
     background-color var(--transition),
     border-color var(--transition),
-    color var(--transition);
+    color var(--transition),
+    box-shadow var(--transition),
+    transform 100ms ease;
 }
 
+.button:active,
+.action-button:active {
+  transform: scale(0.98);
+}
+
+/* Primary — deep navy with gold shimmer on hover */
 .button-primary {
   color: #ffffff;
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background: var(--color-navy-800);
+  border: 1px solid var(--color-navy-800);
+  box-shadow:
+    0 1px 3px rgba(10, 22, 40, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
-  background: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+  background: var(--color-navy-950);
+  border-color: var(--color-navy-950);
+  box-shadow:
+    0 3px 10px rgba(10, 22, 40, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* Secondary */
 .button-secondary {
-  color: var(--color-text);
+  color: var(--color-navy-800);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgba(10, 22, 40, 0.06);
 }
 
 .button-secondary:hover,
 .button-secondary:focus-visible {
   background: var(--color-surface-muted);
+  border-color: #b8c8e0;
+}
+
+/* Gold accent button */
+.button-accent {
+  color: var(--color-navy-950);
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-400),
+    var(--color-gold-500)
+  );
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-gold);
+}
+
+.button-accent:hover,
+.button-accent:focus-visible {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-500),
+    var(--color-gold-700)
+  );
+  box-shadow: 0 4px 14px rgba(201, 168, 76, 0.35);
 }
 
 .button-full {
   width: 100%;
 }
 
+/* ── Action buttons (in-table) ───────── */
 .action-button {
-  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-navy-700);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  padding: 0.3125rem 0.75rem;
+  min-height: 2rem;
 }
 
 .action-button:hover,
 .action-button:focus-visible {
-  background: var(--color-primary-soft);
-  border-color: #b8c9ee;
+  background: var(--color-navy-50);
+  border-color: rgba(36, 84, 166, 0.3);
+  color: var(--color-navy-800);
 }
 
 .action-group {
@@ -132,6 +192,7 @@ textarea.form-control {
   gap: var(--space-2);
 }
 
+/* ── Action menu (dropdown) ──────────── */
 .action-menu {
   position: relative;
   display: inline-flex;
@@ -159,6 +220,7 @@ textarea.form-control {
   width: 100%;
   padding: var(--space-2) var(--space-3);
   color: var(--color-text);
+  font-size: 0.875rem;
   text-align: left;
   background: transparent;
   border: 0;
@@ -170,30 +232,37 @@ textarea.form-control {
   background: var(--color-surface-muted);
 }
 
+/* ── Section toggle ──────────────────── */
 .section-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 0;
-  color: var(--color-text);
-  font-weight: 800;
+  color: var(--color-navy-900);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   background: transparent;
   border: 0;
 }
 
 .section-toggle::after {
-  content: "-";
+  content: "−";
   color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 1rem;
 }
 
 .form-section.is-collapsed .section-toggle::after {
   content: "+";
 }
 
+/* ── Loading spinner ─────────────────── */
 .is-loading::before {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.8rem;
+  height: 0.8rem;
   margin-right: var(--space-2);
   border: 2px solid currentColor;
   border-top-color: transparent;
@@ -208,16 +277,15 @@ textarea.form-control {
   }
 }
 
+/* ── Responsive ──────────────────────── */
 @media (max-width: 700px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
-
   .compact-form-grid,
   .form-section {
     padding: var(--space-5);
   }
-
   .search-field {
     width: 100%;
   }
