@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monthly Logs | AW Client Portal</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
+    <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/sidebar.css" />
+  </head>
+  <body data-page="monthly_logs">
+    <div class="app-layout">
+      <aside id="sidebar"></aside>
+
+      <div class="main-shell">
+        <header id="navbar"></header>
+
+        <main class="page-content">
+          <section class="page-header" aria-labelledby="page-title">
+            <p class="page-eyebrow">Financial Workflow</p>
+            <h1 id="page-title">Monthly Logs</h1>
+            <p class="page-description">
+              Capture monthly financial inputs before report preparation.
+            </p>
+          </section>
+
+          <section class="dashboard-card">
+            <div class="form-grid compact-form-grid">
+              <label class="form-field">
+                <span>Client</span>
+                <select id="monthly-log-client" class="form-control">
+                  <option>Anderson Family Trust</option>
+                  <option>Northstar Holdings</option>
+                  <option>Riverbend Capital</option>
+                  <option>Crescent Advisory Group</option>
+                </select>
+              </label>
+
+              <label class="form-field">
+                <span>Month</span>
+                <select id="monthly-log-month" class="form-control">
+                  <option>May 2026</option>
+                  <option>April 2026</option>
+                  <option>March 2026</option>
+                  <option>February 2026</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="stats-grid" aria-label="Financial summary">
+            <article class="stat-card">
+              <span class="stat-label">Assets</span>
+              <strong class="stat-value">$4.82M</strong>
+              <span class="stat-note">Placeholder total</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Liabilities</span>
+              <strong class="stat-value">$940K</strong>
+              <span class="stat-note">Placeholder total</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Contributions</span>
+              <strong class="stat-value">$128K</strong>
+              <span class="stat-note">Monthly estimate</span>
+            </article>
+          </section>
+
+          <div class="content-grid">
+            <section class="dashboard-card" aria-labelledby="log-inputs-title">
+              <div class="card-header">
+                <div>
+                  <h2 id="log-inputs-title">Log Inputs</h2>
+                  <p>Placeholder fields only. No calculations are performed.</p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Assets</h3>
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Cash Balance</span>
+                    <input class="form-control" type="text" value="$420,000" />
+                  </label>
+                  <label class="form-field">
+                    <span>Investments</span>
+                    <input class="form-control" type="text" value="$4,400,000" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Liabilities</h3>
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Outstanding Loans</span>
+                    <input class="form-control" type="text" value="$710,000" />
+                  </label>
+                  <label class="form-field">
+                    <span>Other Obligations</span>
+                    <input class="form-control" type="text" value="$230,000" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Contributions</h3>
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Client Contributions</span>
+                    <input class="form-control" type="text" value="$92,000" />
+                  </label>
+                  <label class="form-field">
+                    <span>Advisor Adjustments</span>
+                    <input class="form-control" type="text" value="$36,000" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <label class="form-field">
+                  <span>Notes</span>
+                  <textarea class="form-control" rows="4">Add monthly context, review flags, and advisor notes.</textarea>
+                </label>
+              </div>
+            </section>
+
+            <aside class="dashboard-card summary-panel" aria-labelledby="summary-title">
+              <div class="card-header">
+                <div>
+                  <h2 id="summary-title">Calculation Summary</h2>
+                  <p>Static preview values for layout validation.</p>
+                </div>
+              </div>
+
+              <dl class="summary-list">
+                <div>
+                  <dt>Estimated Net Position</dt>
+                  <dd>$3.88M</dd>
+                </div>
+                <div>
+                  <dt>Month-over-Month Change</dt>
+                  <dd>+2.4%</dd>
+                </div>
+                <div>
+                  <dt>Review Status</dt>
+                  <dd><span class="badge badge-warning">Pending</span></dd>
+                </div>
+              </dl>
+
+              <div class="cta-panel">
+                <h3>Ready for report review</h3>
+                <p>Use this area for the report generation workflow in a later phase.</p>
+                <button class="button button-primary button-full" type="button">
+                  Generate Report
+                </button>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="/dist/index.js"></script>
+  </body>
+</html>

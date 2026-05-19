@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | AW Client Portal</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
+    <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/sidebar.css" />
+  </head>
+  <body data-page="reports">
+    <div class="app-layout">
+      <aside id="sidebar"></aside>
+
+      <div class="main-shell">
+        <header id="navbar"></header>
+
+        <main class="page-content">
+          <section class="page-header page-header-row" aria-labelledby="page-title">
+            <div>
+              <p class="page-eyebrow">Reporting</p>
+              <h1 id="page-title">Reports</h1>
+              <p class="page-description">
+                Track generated reports and review report pipeline status.
+              </p>
+            </div>
+          </section>
+
+          <section class="stats-grid" aria-label="Report summary">
+            <article class="stat-card report-card">
+              <span class="stat-label">SACS Reports</span>
+              <strong class="stat-value">42</strong>
+              <span class="stat-note">Available for download</span>
+            </article>
+            <article class="stat-card report-card">
+              <span class="stat-label">TCC Reports</span>
+              <strong class="stat-value">31</strong>
+              <span class="stat-note">Across active clients</span>
+            </article>
+            <article class="stat-card report-card">
+              <span class="stat-label">Generated This Month</span>
+              <strong class="stat-value">18</strong>
+              <span class="stat-note">May 2026</span>
+            </article>
+          </section>
+
+          <section class="dashboard-card" aria-labelledby="reports-table-title">
+            <div class="card-header">
+              <div>
+                <h2 id="reports-table-title">Recent Reports</h2>
+                <p>Mock report history for interface review.</p>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Client</th>
+                    <th scope="col">Report Type</th>
+                    <th scope="col">Generated Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Download</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>Anderson Family Trust</strong>
+                      <span class="table-subtext">Advisor: Maya Chen</span>
+                    </td>
+                    <td>SACS</td>
+                    <td>May 15, 2026</td>
+                    <td><span class="badge badge-success">Ready</span></td>
+                    <td>
+                      <button class="action-button" type="button">Download</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Northstar Holdings</strong>
+                      <span class="table-subtext">Advisor: Daniel Brooks</span>
+                    </td>
+                    <td>TCC</td>
+                    <td>May 12, 2026</td>
+                    <td><span class="badge badge-warning">Review</span></td>
+                    <td>
+                      <button class="action-button" type="button">Download</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Riverbend Capital</strong>
+                      <span class="table-subtext">Advisor: Elena Park</span>
+                    </td>
+                    <td>SACS</td>
+                    <td>May 7, 2026</td>
+                    <td><span class="badge badge-success">Ready</span></td>
+                    <td>
+                      <button class="action-button" type="button">Download</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Crescent Advisory Group</strong>
+                      <span class="table-subtext">Advisor: Priya Nair</span>
+                    </td>
+                    <td>TCC</td>
+                    <td>May 2, 2026</td>
+                    <td><span class="badge badge-neutral">Queued</span></td>
+                    <td>
+                      <button class="action-button" type="button">Download</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="/dist/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clients | AW Client Portal</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
+    <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/sidebar.css" />
+  </head>
+  <body data-page="clients">
+    <div class="app-layout">
+      <aside id="sidebar"></aside>
+
+      <div class="main-shell">
+        <header id="navbar"></header>
+
+        <main class="page-content">
+          <section class="page-header page-header-row" aria-labelledby="page-title">
+            <div>
+              <p class="page-eyebrow">Client Management</p>
+              <h1 id="page-title">Clients</h1>
+              <p class="page-description">
+                Review client records, ownership, and account status.
+              </p>
+            </div>
+
+            <button class="button button-primary" type="button">Add Client</button>
+          </section>
+
+          <section class="toolbar" aria-label="Client filters">
+            <label class="search-field">
+              <span class="sr-only">Search clients</span>
+              <input
+                id="client-search"
+                class="form-control"
+                type="search"
+                placeholder="Search clients"
+                autocomplete="off"
+              />
+            </label>
+          </section>
+
+          <section class="stats-grid" aria-label="Client summary">
+            <article class="stat-card">
+              <span class="stat-label">Total Clients</span>
+              <strong class="stat-value">128</strong>
+              <span class="stat-note">Across all advisors</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Active Clients</span>
+              <strong class="stat-value">112</strong>
+              <span class="stat-note">In good standing</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Pending Reviews</span>
+              <strong class="stat-value">16</strong>
+              <span class="stat-note">Need advisor action</span>
+            </article>
+          </section>
+
+          <section class="dashboard-card" aria-labelledby="clients-table-title">
+            <div class="card-header">
+              <div>
+                <h2 id="clients-table-title">Client Directory</h2>
+                <p>Mock client data for Phase 2 interface review.</p>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Client Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Advisor</th>
+                    <th scope="col">Last Updated</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="clients-table-body">
+                  <tr>
+                    <td>
+                      <strong>Anderson Family Trust</strong>
+                      <span class="table-subtext">Portfolio review due</span>
+                    </td>
+                    <td><span class="badge badge-success">Active</span></td>
+                    <td>Maya Chen</td>
+                    <td>May 14, 2026</td>
+                    <td>
+                      <div class="action-group">
+                        <button class="action-button" type="button">View</button>
+                        <button class="action-button" type="button">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Northstar Holdings</strong>
+                      <span class="table-subtext">Awaiting monthly log</span>
+                    </td>
+                    <td><span class="badge badge-warning">Pending</span></td>
+                    <td>Daniel Brooks</td>
+                    <td>May 10, 2026</td>
+                    <td>
+                      <div class="action-group">
+                        <button class="action-button" type="button">View</button>
+                        <button class="action-button" type="button">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Riverbend Capital</strong>
+                      <span class="table-subtext">Reports current</span>
+                    </td>
+                    <td><span class="badge badge-success">Active</span></td>
+                    <td>Elena Park</td>
+                    <td>May 8, 2026</td>
+                    <td>
+                      <div class="action-group">
+                        <button class="action-button" type="button">View</button>
+                        <button class="action-button" type="button">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Crescent Advisory Group</strong>
+                      <span class="table-subtext">New intake</span>
+                    </td>
+                    <td><span class="badge badge-neutral">Draft</span></td>
+                    <td>Priya Nair</td>
+                    <td>May 3, 2026</td>
+                    <td>
+                      <div class="action-group">
+                        <button class="action-button" type="button">View</button>
+                        <button class="action-button" type="button">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="clients-empty-state" class="empty-state hidden">
+              <h2>No clients found</h2>
+              <p>Adjust the search term to view matching mock client records.</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="/dist/index.js"></script>
+  </body>
+</html>
