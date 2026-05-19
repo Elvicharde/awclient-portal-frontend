@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/styles/layout.css" />
     <link rel="stylesheet" href="/styles/forms.css" />
     <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
     <link rel="stylesheet" href="/styles/sidebar.css" />
   </head>
   <body data-page="reports">
@@ -26,22 +28,25 @@
                 Track generated reports and review report pipeline status.
               </p>
             </div>
+            <button id="generate-report-button" class="button button-primary" type="button">
+              Generate Report
+            </button>
           </section>
 
           <section class="stats-grid" aria-label="Report summary">
             <article class="stat-card report-card">
               <span class="stat-label">SACS Reports</span>
-              <strong class="stat-value">42</strong>
+              <strong id="sacs-report-stat" class="stat-value">0</strong>
               <span class="stat-note">Available for download</span>
             </article>
             <article class="stat-card report-card">
               <span class="stat-label">TCC Reports</span>
-              <strong class="stat-value">31</strong>
+              <strong id="tcc-report-stat" class="stat-value">0</strong>
               <span class="stat-note">Across active clients</span>
             </article>
             <article class="stat-card report-card">
               <span class="stat-label">Generated This Month</span>
-              <strong class="stat-value">18</strong>
+              <strong id="monthly-report-stat" class="stat-value">0</strong>
               <span class="stat-note">May 2026</span>
             </article>
           </section>
@@ -52,76 +57,61 @@
                 <h2 id="reports-table-title">Recent Reports</h2>
                 <p>Mock report history for interface review.</p>
               </div>
+              <label class="filter-field">
+                <span class="sr-only">Filter report type</span>
+                <select id="report-type-filter" class="form-control">
+                  <option value="all">All reports</option>
+                  <option value="SACS">SACS</option>
+                  <option value="TCC">TCC</option>
+                </select>
+              </label>
             </div>
 
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th scope="col">Client</th>
-                    <th scope="col">Report Type</th>
-                    <th scope="col">Generated Date</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">
+                      <button class="table-sort" type="button" data-sort="client">
+                        Client
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button class="table-sort" type="button" data-sort="report_type">
+                        Report Type
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button class="table-sort" type="button" data-sort="generated_date">
+                        Generated Date
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button class="table-sort" type="button" data-sort="status">
+                        Status
+                      </button>
+                    </th>
                     <th scope="col">Download</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <strong>Anderson Family Trust</strong>
-                      <span class="table-subtext">Advisor: Maya Chen</span>
-                    </td>
-                    <td>SACS</td>
-                    <td>May 15, 2026</td>
-                    <td><span class="badge badge-success">Ready</span></td>
-                    <td>
-                      <button class="action-button" type="button">Download</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Northstar Holdings</strong>
-                      <span class="table-subtext">Advisor: Daniel Brooks</span>
-                    </td>
-                    <td>TCC</td>
-                    <td>May 12, 2026</td>
-                    <td><span class="badge badge-warning">Review</span></td>
-                    <td>
-                      <button class="action-button" type="button">Download</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Riverbend Capital</strong>
-                      <span class="table-subtext">Advisor: Elena Park</span>
-                    </td>
-                    <td>SACS</td>
-                    <td>May 7, 2026</td>
-                    <td><span class="badge badge-success">Ready</span></td>
-                    <td>
-                      <button class="action-button" type="button">Download</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Crescent Advisory Group</strong>
-                      <span class="table-subtext">Advisor: Priya Nair</span>
-                    </td>
-                    <td>TCC</td>
-                    <td>May 2, 2026</td>
-                    <td><span class="badge badge-neutral">Queued</span></td>
-                    <td>
-                      <button class="action-button" type="button">Download</button>
-                    </td>
+                <tbody id="reports-table-body">
+                  <tr class="skeleton-row">
+                    <td colspan="5"><span class="skeleton-line"></span></td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div id="reports-empty-state" class="empty-state hidden">
+              <h2>No reports found</h2>
+              <p>Change the report filter to view matching mock reports.</p>
             </div>
           </section>
         </main>
       </div>
     </div>
 
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
     <script type="module" src="/dist/index.js"></script>
   </body>
 </html>

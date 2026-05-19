@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/styles/layout.css" />
     <link rel="stylesheet" href="/styles/forms.css" />
     <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
     <link rel="stylesheet" href="/styles/sidebar.css" />
   </head>
   <body data-page="monthly_logs">
@@ -53,17 +55,17 @@
           <section class="stats-grid" aria-label="Financial summary">
             <article class="stat-card">
               <span class="stat-label">Assets</span>
-              <strong class="stat-value">$4.82M</strong>
-              <span class="stat-note">Placeholder total</span>
+              <strong id="assets-total" class="stat-value">$0</strong>
+              <span class="stat-note">Input total</span>
             </article>
             <article class="stat-card">
               <span class="stat-label">Liabilities</span>
-              <strong class="stat-value">$940K</strong>
-              <span class="stat-note">Placeholder total</span>
+              <strong id="liabilities-total" class="stat-value">$0</strong>
+              <span class="stat-note">Input total</span>
             </article>
             <article class="stat-card">
               <span class="stat-label">Contributions</span>
-              <strong class="stat-value">$128K</strong>
+              <strong id="contributions-total" class="stat-value">$0</strong>
               <span class="stat-note">Monthly estimate</span>
             </article>
           </section>
@@ -77,44 +79,50 @@
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Assets</h3>
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>Assets</span>
+                </button>
                 <div class="form-grid">
                   <label class="form-field">
                     <span>Cash Balance</span>
-                    <input class="form-control" type="text" value="$420,000" />
+                    <input class="form-control" data-log-field="cash" type="text" />
                   </label>
                   <label class="form-field">
                     <span>Investments</span>
-                    <input class="form-control" type="text" value="$4,400,000" />
+                    <input class="form-control" data-log-field="investments" type="text" />
                   </label>
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Liabilities</h3>
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>Liabilities</span>
+                </button>
                 <div class="form-grid">
                   <label class="form-field">
                     <span>Outstanding Loans</span>
-                    <input class="form-control" type="text" value="$710,000" />
+                    <input class="form-control" data-log-field="loans" type="text" />
                   </label>
                   <label class="form-field">
                     <span>Other Obligations</span>
-                    <input class="form-control" type="text" value="$230,000" />
+                    <input class="form-control" data-log-field="obligations" type="text" />
                   </label>
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Contributions</h3>
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>Contributions</span>
+                </button>
                 <div class="form-grid">
                   <label class="form-field">
                     <span>Client Contributions</span>
-                    <input class="form-control" type="text" value="$92,000" />
+                    <input class="form-control" data-log-field="contributions" type="text" />
                   </label>
                   <label class="form-field">
                     <span>Advisor Adjustments</span>
-                    <input class="form-control" type="text" value="$36,000" />
+                    <input class="form-control" data-log-field="adjustments" type="text" />
                   </label>
                 </div>
               </div>
@@ -138,11 +146,11 @@
               <dl class="summary-list">
                 <div>
                   <dt>Estimated Net Position</dt>
-                  <dd>$3.88M</dd>
+                  <dd id="net-position-preview">$0</dd>
                 </div>
                 <div>
                   <dt>Month-over-Month Change</dt>
-                  <dd>+2.4%</dd>
+                  <dd id="change-preview">+0.0%</dd>
                 </div>
                 <div>
                   <dt>Review Status</dt>
@@ -153,7 +161,10 @@
               <div class="cta-panel">
                 <h3>Ready for report review</h3>
                 <p>Use this area for the report generation workflow in a later phase.</p>
-                <button class="button button-primary button-full" type="button">
+                <button id="save-draft-button" class="button button-secondary button-full" type="button">
+                  Save Draft
+                </button>
+                <button id="generate-report-button" class="button button-primary button-full" type="button">
                   Generate Report
                 </button>
               </div>
@@ -163,6 +174,8 @@
       </div>
     </div>
 
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
     <script type="module" src="/dist/index.js"></script>
   </body>
 </html>

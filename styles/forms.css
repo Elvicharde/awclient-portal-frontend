@@ -15,6 +15,11 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.form-section.is-collapsed .form-grid,
+.form-section.is-collapsed .form-field {
+  display: none;
+}
+
 .form-section:last-child {
   border-bottom: 0;
 }
@@ -94,6 +99,17 @@ textarea.form-control {
   border-color: var(--color-primary-hover);
 }
 
+.button-secondary {
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.button-secondary:hover,
+.button-secondary:focus-visible {
+  background: var(--color-surface-muted);
+}
+
 .button-full {
   width: 100%;
 }
@@ -114,6 +130,82 @@ textarea.form-control {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.action-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.action-menu-list {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 15;
+  display: grid;
+  min-width: 8rem;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-drawer);
+}
+
+.action-menu-list[hidden] {
+  display: none;
+}
+
+.action-menu-list button {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+}
+
+.action-menu-list button:hover,
+.action-menu-list button:focus-visible {
+  background: var(--color-surface-muted);
+}
+
+.section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  color: var(--color-text);
+  font-weight: 800;
+  background: transparent;
+  border: 0;
+}
+
+.section-toggle::after {
+  content: "-";
+  color: var(--color-text-muted);
+}
+
+.form-section.is-collapsed .section-toggle::after {
+  content: "+";
+}
+
+.is-loading::before {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-right: var(--space-2);
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 999px;
+  content: "";
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 700px) {

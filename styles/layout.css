@@ -108,6 +108,10 @@
   gap: var(--space-4);
 }
 
+.filter-field {
+  width: min(100%, 14rem);
+}
+
 .dashboard-card,
 .stat-card {
   background: var(--color-surface);
@@ -221,6 +225,28 @@
   border-radius: var(--radius-md);
 }
 
+.detail-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.detail-list div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.detail-list dt {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.detail-list dd {
+  margin: 0;
+  font-weight: 700;
+}
+
 .cta-panel p {
   color: var(--color-text-muted);
   font-size: 0.875rem;
@@ -266,6 +292,10 @@
   .toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .filter-field {
+    width: 100%;
   }
 
   .stats-grid,

@@ -33,6 +33,16 @@ export function initialize_sidebar() {
             close_mobile_sidebar(sidebar_host, navbar_toggle);
         }
     });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            close_mobile_sidebar(sidebar_host, navbar_toggle);
+        }
+    });
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 900) {
+            close_mobile_sidebar(sidebar_host, navbar_toggle);
+        }
+    });
     mark_active_nav_item(sidebar);
 }
 function close_mobile_sidebar(sidebar_host, navbar_toggle) {
