@@ -1,0 +1,140 @@
+<div class="modal-backdrop" data-modal-backdrop hidden></div>
+
+<section
+  id="add-client-modal"
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="add-client-modal-title"
+  hidden
+>
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div>
+        <p class="page-eyebrow">Client Setup</p>
+        <h2 id="add-client-modal-title">Add Client</h2>
+      </div>
+      <button class="icon-button" type="button" data-modal-close aria-label="Close modal">
+        &times;
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="form-field">
+          <span>Client Name</span>
+          <input class="form-control" type="text" placeholder="Client name" />
+        </label>
+        <label class="form-field">
+          <span>Advisor</span>
+          <input class="form-control" type="text" placeholder="Advisor name" />
+        </label>
+        <label class="form-field">
+          <span>Status</span>
+          <select class="form-control">
+            <option>Active</option>
+            <option>Pending</option>
+            <option>Draft</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Review Date</span>
+          <input class="form-control" type="text" placeholder="May 30, 2026" />
+        </label>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="button button-secondary" type="button" data-modal-close>
+        Cancel
+      </button>
+      <button class="button button-primary" type="button" data-mock-create-client>
+        Create Client
+      </button>
+    </footer>
+  </div>
+</section>
+
+<section
+  id="view-client-modal"
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="view-client-modal-title"
+  hidden
+>
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div>
+        <p class="page-eyebrow">Client Snapshot</p>
+        <h2 id="view-client-modal-title">Client Details</h2>
+      </div>
+      <button class="icon-button" type="button" data-modal-close aria-label="Close modal">
+        &times;
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <dl class="detail-list">
+        <div>
+          <dt>Client</dt>
+          <dd data-client-detail="name">-</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd data-client-detail="status">-</dd>
+        </div>
+        <div>
+          <dt>Advisor</dt>
+          <dd data-client-detail="advisor">-</dd>
+        </div>
+        <div>
+          <dt>Last Updated</dt>
+          <dd data-client-detail="last_updated">-</dd>
+        </div>
+      </dl>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="button button-primary" type="button" data-modal-close>
+        Done
+      </button>
+    </footer>
+  </div>
+</section>
+
+<section
+  id="generate-report-modal"
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="generate-report-modal-title"
+  hidden
+>
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div>
+        <p class="page-eyebrow">Report Workflow</p>
+        <h2 id="generate-report-modal-title">Generate Report</h2>
+      </div>
+      <button class="icon-button" type="button" data-modal-close aria-label="Close modal">
+        &times;
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <p class="modal-copy">
+        This mock workflow simulates report generation without contacting the API.
+      </p>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="button button-secondary" type="button" data-modal-close>
+        Cancel
+      </button>
+      <button class="button button-primary" type="button" data-confirm-report-generation>
+        Generate
+      </button>
+    </footer>
+  </div>
+</section>

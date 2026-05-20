@@ -3,11 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monthly Logs | AW Client Portal</title>
+    <title>Quarterly Logs | AW Client Portal</title>
+    <link rel="icon" href="/assets/icons/aw_client_portal_icon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="alternate icon" href="/assets/aw_client_portal_icon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/layout.css" />
     <link rel="stylesheet" href="/styles/forms.css" />
     <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
     <link rel="stylesheet" href="/styles/sidebar.css" />
   </head>
   <body data-page="monthly_logs">
@@ -18,53 +22,70 @@
         <header id="navbar"></header>
 
         <main class="page-content">
-          <section class="page-header" aria-labelledby="page-title">
-            <p class="page-eyebrow">Financial Workflow</p>
-            <h1 id="page-title">Monthly Logs</h1>
-            <p class="page-description">
-              Capture monthly financial inputs before report preparation.
-            </p>
+          <section class="page-header page-header-row" aria-labelledby="page-title">
+            <div>
+              <p class="page-eyebrow">Financial Workflow</p>
+              <h1 id="page-title">Quarterly Logs</h1>
+              <p class="page-description">
+                Capture quarterly SACS and TCC inputs before report preparation.
+              </p>
+            </div>
+
+            <div id="quarterly-completion-tracker" class="completion-tracker" aria-live="polite">
+              <div class="completion-ring">
+                <svg class="completion-ring-svg" viewBox="0 0 72 72" aria-hidden="true">
+                  <circle class="completion-ring-track" cx="36" cy="36" r="30"></circle>
+                  <circle
+                    id="quarterly-completion-ring-progress"
+                    class="completion-ring-progress"
+                    cx="36"
+                    cy="36"
+                    r="30"
+                  ></circle>
+                </svg>
+                <span id="quarterly-completion-percent">0%</span>
+              </div>
+              <span>Complete</span>
+            </div>
           </section>
 
           <section class="dashboard-card">
             <div class="form-grid compact-form-grid">
               <label class="form-field">
                 <span>Client</span>
-                <select id="monthly-log-client" class="form-control">
-                  <option>Anderson Family Trust</option>
-                  <option>Northstar Holdings</option>
-                  <option>Riverbend Capital</option>
-                  <option>Crescent Advisory Group</option>
-                </select>
+                <select id="monthly-log-client" class="form-control"></select>
               </label>
 
               <label class="form-field">
-                <span>Month</span>
-                <select id="monthly-log-month" class="form-control">
-                  <option>May 2026</option>
-                  <option>April 2026</option>
-                  <option>March 2026</option>
-                  <option>February 2026</option>
+                <span>Quarter</span>
+                <select id="monthly-log-quarter" class="form-control">
+                  <option value="Q1">Q1 &mdash; Jan 1 to Mar 31</option>
+                  <option value="Q2">Q2 &mdash; Apr 1 to Jun 30</option>
+                  <option value="Q3">Q3 &mdash; Jul 1 to Sep 30</option>
+                  <option value="Q4">Q4 &mdash; Oct 1 to Dec 31</option>
                 </select>
               </label>
+              <p id="selected-quarter-feedback" class="form-helper quarter-feedback form-field-wide">
+                Selected quarter: Q1 &mdash; Jan 1 to Mar 31
+              </p>
             </div>
           </section>
 
-          <section class="stats-grid" aria-label="Financial summary">
+          <section class="stats-grid" aria-label="SACS cashflow summary">
             <article class="stat-card">
-              <span class="stat-label">Assets</span>
-              <strong class="stat-value">$4.82M</strong>
-              <span class="stat-note">Placeholder total</span>
+              <span class="stat-label">Inflow</span>
+              <strong id="inflow-total" class="stat-value">$0</strong>
+              <span class="stat-note">Quarterly inflow</span>
             </article>
             <article class="stat-card">
-              <span class="stat-label">Liabilities</span>
-              <strong class="stat-value">$940K</strong>
-              <span class="stat-note">Placeholder total</span>
+              <span class="stat-label">Expense</span>
+              <strong id="expense-total" class="stat-value">$0</strong>
+              <span class="stat-note">Quarterly expense</span>
             </article>
             <article class="stat-card">
-              <span class="stat-label">Contributions</span>
-              <strong class="stat-value">$128K</strong>
-              <span class="stat-note">Monthly estimate</span>
+              <span class="stat-label">Reserve</span>
+              <strong id="reserve-total" class="stat-value">$0</strong>
+              <span class="stat-note">Private reserve target</span>
             </article>
           </section>
 
@@ -72,57 +93,201 @@
             <section class="dashboard-card" aria-labelledby="log-inputs-title">
               <div class="card-header">
                 <div>
-                  <h2 id="log-inputs-title">Log Inputs</h2>
-                  <p>Placeholder fields only. No calculations are performed.</p>
+                  <h2 id="log-inputs-title">Quarterly Financial Logs</h2>
+                  <p>Prepare SACS cashflow and TCC balance inputs for the selected quarter.</p>
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Assets</h3>
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>SACS Cashflow</span>
+                </button>
                 <div class="form-grid">
                   <label class="form-field">
-                    <span>Cash Balance</span>
-                    <input class="form-control" type="text" value="$420,000" />
+                    <span data-client1-inflow-label>Quarterly inflow</span>
+                    <input class="form-control" data-log-field="client1_quarterly_inflow" data-required-log type="text" readonly />
                   </label>
                   <label class="form-field">
-                    <span>Investments</span>
-                    <input class="form-control" type="text" value="$4,400,000" />
+                    <span data-client1-outflow-label>Quarterly expense / outflow</span>
+                    <input class="form-control" data-log-field="client1_quarterly_outflow" data-required-log type="text" readonly />
+                  </label>
+                  <label class="form-field conditional-section married-quarterly-field">
+                    <span>Quarterly inflow (Client 2)</span>
+                    <input class="form-control married-quarterly-input" data-log-field="client2_quarterly_inflow" data-required-log type="text" readonly />
+                  </label>
+                  <label class="form-field conditional-section married-quarterly-field">
+                    <span>Quarterly expense / outflow (Client 2)</span>
+                    <input class="form-control married-quarterly-input" data-log-field="client2_quarterly_outflow" data-required-log type="text" readonly />
+                  </label>
+                  <label class="form-field">
+                    <span>Insurance deductible total</span>
+                    <input class="form-control" data-log-field="insurance_deductible" data-required-log type="text" />
+                  </label>
+                  <label class="form-field">
+                    <span>Private reserve balance</span>
+                    <input class="form-control" data-log-field="private_reserve_balance" data-required-log type="text" />
                   </label>
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Liabilities</h3>
+              <div id="client1-retirement-section" class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span id="client1-retirement-section-title">TCC - Client 1 Retirement</span>
+                </button>
                 <div class="form-grid">
-                  <label class="form-field">
-                    <span>Outstanding Loans</span>
-                    <input class="form-control" type="text" value="$710,000" />
+                  <label class="form-field dynamic-balance-field">
+                    <span>IRA balance</span>
+                    <input class="form-control" data-log-field="client1_ira" data-last-value="185000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $185,000</small>
+                    <button class="action-button" type="button" data-use-last="client1_ira">Use last value</button>
                   </label>
-                  <label class="form-field">
-                    <span>Other Obligations</span>
-                    <input class="form-control" type="text" value="$230,000" />
+                  <label class="form-field dynamic-balance-field">
+                    <span>Roth IRA balance</span>
+                    <input class="form-control" data-log-field="client1_roth_ira" data-last-value="74000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $74,000</small>
+                    <button class="action-button" type="button" data-use-last="client1_roth_ira">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>401K balance</span>
+                    <input class="form-control" data-log-field="client1_401k" data-last-value="245000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $245,000</small>
+                    <button class="action-button" type="button" data-use-last="client1_401k">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Pension balance</span>
+                    <input class="form-control" data-log-field="client1_pension" data-last-value="95000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $95,000</small>
+                    <button class="action-button" type="button" data-use-last="client1_pension">Use last value</button>
                   </label>
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>Contributions</h3>
+              <div id="client2-retirement-section" class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>TCC - Client 2 Retirement</span>
+                </button>
                 <div class="form-grid">
-                  <label class="form-field">
-                    <span>Client Contributions</span>
-                    <input class="form-control" type="text" value="$92,000" />
+                  <label class="form-field dynamic-balance-field">
+                    <span>IRA balance</span>
+                    <input class="form-control" data-log-field="client2_ira" data-last-value="98000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $98,000</small>
+                    <button class="action-button" type="button" data-use-last="client2_ira">Use last value</button>
                   </label>
-                  <label class="form-field">
-                    <span>Advisor Adjustments</span>
-                    <input class="form-control" type="text" value="$36,000" />
+                  <label class="form-field dynamic-balance-field">
+                    <span>Roth IRA balance</span>
+                    <input class="form-control" data-log-field="client2_roth_ira" data-last-value="42000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $42,000</small>
+                    <button class="action-button" type="button" data-use-last="client2_roth_ira">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>401K balance</span>
+                    <input class="form-control" data-log-field="client2_401k" data-last-value="167000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $167,000</small>
+                    <button class="action-button" type="button" data-use-last="client2_401k">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Pension balance</span>
+                    <input class="form-control" data-log-field="client2_pension" data-last-value="61000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $61,000</small>
+                    <button class="action-button" type="button" data-use-last="client2_pension">Use last value</button>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>TCC - Non-Retirement Accounts</span>
+                </button>
+                <div class="form-grid">
+                  <label class="form-field dynamic-balance-field">
+                    <span>Brokerage balance</span>
+                    <input class="form-control" data-log-field="brokerage" data-last-value="132000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $132,000</small>
+                    <button class="action-button" type="button" data-use-last="brokerage">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Joint brokerage balance</span>
+                    <input class="form-control" data-log-field="joint_brokerage" data-last-value="88000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $88,000</small>
+                    <button class="action-button" type="button" data-use-last="joint_brokerage">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Checking balance</span>
+                    <input class="form-control" data-log-field="checking" data-last-value="26000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $26,000</small>
+                    <button class="action-button" type="button" data-use-last="checking">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Savings balance</span>
+                    <input class="form-control" data-log-field="savings" data-last-value="54000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $54,000</small>
+                    <button class="action-button" type="button" data-use-last="savings">Use last value</button>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>TCC - Trust and Property</span>
+                </button>
+                <div class="form-grid">
+                  <label class="form-field dynamic-balance-field">
+                    <span>Trust/property value</span>
+                    <input class="form-control" data-log-field="trust_property_value" data-last-value="625000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $625,000</small>
+                    <button class="action-button" type="button" data-use-last="trust_property_value">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Zillow home value placeholder/manual value</span>
+                    <input class="form-control" data-log-field="zillow_home_value" data-last-value="625000" type="text" />
+                    <small class="form-helper">Manual value only. Zillow lookup will be added in a later phase.</small>
+                    <button class="action-button" type="button" data-use-last="zillow_home_value">Use last value</button>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section" data-collapsible-section>
+                <button class="section-toggle" type="button" aria-expanded="true">
+                  <span>TCC - Liabilities</span>
+                </button>
+                <div class="form-grid">
+                  <label class="form-field dynamic-balance-field">
+                    <span>Mortgage balance</span>
+                    <input class="form-control" data-log-field="mortgage_balance" data-last-value="308000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $308,000</small>
+                    <button class="action-button" type="button" data-use-last="mortgage_balance">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Auto loan balance</span>
+                    <input class="form-control" data-log-field="auto_loan_balance" data-last-value="18000" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $18,000</small>
+                    <button class="action-button" type="button" data-use-last="auto_loan_balance">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Credit card balance</span>
+                    <input class="form-control" data-log-field="credit_card_balance" data-last-value="6200" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $6,200</small>
+                    <button class="action-button" type="button" data-use-last="credit_card_balance">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Personal loan balance</span>
+                    <input class="form-control" data-log-field="personal_loan_balance" data-last-value="9500" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $9,500</small>
+                    <button class="action-button" type="button" data-use-last="personal_loan_balance">Use last value</button>
+                  </label>
+                  <label class="form-field dynamic-balance-field">
+                    <span>Other liability balance</span>
+                    <input class="form-control" data-log-field="other_liability_balance" data-last-value="0" data-required-log data-required-balance type="text" />
+                    <small class="form-helper">Last known value: $0</small>
+                    <button class="action-button" type="button" data-use-last="other_liability_balance">Use last value</button>
                   </label>
                 </div>
               </div>
 
               <div class="form-section">
                 <label class="form-field">
-                  <span>Notes</span>
-                  <textarea class="form-control" rows="4">Add monthly context, review flags, and advisor notes.</textarea>
+                  <span>Quarterly notes</span>
+                  <textarea class="form-control" rows="4">Add quarterly context, review flags, and advisor notes.</textarea>
                 </label>
               </div>
             </section>
@@ -131,30 +296,63 @@
               <div class="card-header">
                 <div>
                   <h2 id="summary-title">Calculation Summary</h2>
-                  <p>Static preview values for layout validation.</p>
+                  <p>Live SACS and TCC totals for the selected quarter.</p>
                 </div>
               </div>
 
               <dl class="summary-list">
                 <div>
-                  <dt>Estimated Net Position</dt>
-                  <dd>$3.88M</dd>
+                  <dt>SACS Excess</dt>
+                  <dd id="excess-preview">$0</dd>
                 </div>
                 <div>
-                  <dt>Month-over-Month Change</dt>
-                  <dd>+2.4%</dd>
+                  <dt>Private Reserve Target</dt>
+                  <dd id="reserve-target-preview">$0</dd>
+                </div>
+                <div id="single-retirement-summary-row" class="conditional-section">
+                  <dt>Retirement Total</dt>
+                  <dd id="retirement-total">$0</dd>
+                </div>
+                <div id="client1-retirement-summary-row" class="conditional-section">
+                  <dt>Client 1 Retirement Total</dt>
+                  <dd id="client1-retirement-total">$0</dd>
+                </div>
+                <div id="client2-retirement-summary-row" class="conditional-section">
+                  <dt>Client 2 Retirement Total</dt>
+                  <dd id="client2-retirement-total">$0</dd>
+                </div>
+                <div>
+                  <dt>Non-Retirement Total</dt>
+                  <dd id="non-retirement-total">$0</dd>
+                </div>
+                <div>
+                  <dt>Trust Total</dt>
+                  <dd id="trust-total">$0</dd>
+                </div>
+                <div>
+                  <dt>Grand Total Net Worth</dt>
+                  <dd id="grand-total-net-worth">$0</dd>
+                </div>
+                <div>
+                  <dt>Liabilities Total</dt>
+                  <dd id="liabilities-total">$0</dd>
                 </div>
                 <div>
                   <dt>Review Status</dt>
-                  <dd><span class="badge badge-warning">Pending</span></dd>
+                  <dd><span id="quarterly-review-status" class="badge badge-warning">Incomplete</span></dd>
                 </div>
               </dl>
 
               <div class="cta-panel">
-                <h3>Ready for report review</h3>
-                <p>Use this area for the report generation workflow in a later phase.</p>
-                <button class="button button-primary button-full" type="button">
-                  Generate Report
+                <h3>Ready for quarterly report review</h3>
+                <p>
+                  Complete all required quarterly balances before simulating report generation.
+                </p>
+                <button id="save-draft-button" class="button button-secondary button-full" type="button">
+                  Save Draft
+                </button>
+                <button id="generate-report-button" class="button button-primary button-full" type="button">
+                  Generate Q1 Report
                 </button>
               </div>
             </aside>
@@ -163,6 +361,9 @@
       </div>
     </div>
 
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+    <script src="/config.js"></script>
     <script type="module" src="/dist/index.js"></script>
   </body>
 </html>

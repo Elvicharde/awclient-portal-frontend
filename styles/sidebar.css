@@ -1,3 +1,5 @@
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -8,23 +10,33 @@
   overflow-x: hidden;
   overflow-y: auto;
   color: var(--color-sidebar-active);
-  background: var(--color-sidebar);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-navy-950);
+  border-right: 1px solid rgba(255, 255, 255, 0.055);
   transition: width var(--transition);
+
+  /* Subtle texture: thin diagonal lines */
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 28px,
+    rgba(255, 255, 255, 0.012) 28px,
+    rgba(255, 255, 255, 0.012) 29px
+  );
 }
 
 #sidebar.sidebar-collapsed .sidebar {
   width: var(--sidebar-width-collapsed);
 }
 
+/* ── Header ─────────────────────────── */
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   min-height: var(--navbar-height);
-  padding: 0 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 1rem 0 1.125rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
 }
 
 .sidebar-brand {
@@ -34,31 +46,39 @@
   gap: 0.75rem;
 }
 
-.sidebar-brand-mark,
-.nav-icon {
+/* Gold-accented brand mark */
+.sidebar-brand-mark {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.125rem;
+  height: 2.125rem;
   border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0;
-}
-
-.sidebar-brand-mark {
-  color: var(--color-sidebar);
-  background: var(--color-sidebar-active);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-navy-950);
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-400),
+    var(--color-gold-500)
+  );
+  box-shadow:
+    0 2px 8px rgba(201, 168, 76, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .sidebar-title {
   overflow: hidden;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #fff;
 }
 
 .sidebar-collapse-btn {
@@ -66,27 +86,59 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  color: var(--color-sidebar-active);
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-sidebar-muted);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
   transition:
+    color var(--transition),
     background-color var(--transition),
     border-color var(--transition);
 }
 
 .sidebar-collapse-btn:hover,
 .sidebar-collapse-btn:focus-visible {
+  color: #fff;
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Gold divider accent below header ── */
+.sidebar::after {
+  display: none; /* handled by border */
+}
+
+/* ── Nav ─────────────────────────────── */
+.sidebar-nav {
+  display: grid;
+  gap: 16px;
+  padding: 1.25rem 0.75rem;
+  /* flex: 1; */
 }
 
 .sidebar-nav {
-  display: grid;
-  gap: 0.25rem;
-  padding: 1rem 0.75rem;
+    padding-top: 2.5rem;
+}
+
+/* Section label */
+.nav-section-label {
+  padding: 0.5rem 0.625rem 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sidebar-muted);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+#sidebar.sidebar-collapsed .nav-section-label {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .nav-link {
@@ -94,45 +146,98 @@
   align-items: center;
   min-width: 0;
   gap: 0.75rem;
-  min-height: 2.75rem;
+  min-height: 2.625rem;
   padding: 0.375rem 0.625rem;
   color: var(--color-sidebar-muted);
   border-radius: 8px;
   transition:
     color var(--transition),
     background-color var(--transition);
+  position: relative;
 }
 
 .nav-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
   color: inherit;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
 }
 
 .nav-label {
   overflow: hidden;
-  font-size: 0.925rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: opacity var(--transition);
 }
 
 .nav-link:hover,
-.nav-link:focus-visible,
+.nav-link:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.nav-link:hover .nav-icon {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Active state — gold accent */
 .nav-link.active {
-  color: var(--color-sidebar-active);
-  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  background: rgba(201, 168, 76, 0.12);
 }
 
 .nav-link.active .nav-icon {
-  color: var(--color-primary);
-  background: var(--color-sidebar-active);
+  color: var(--color-navy-950);
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-400),
+    var(--color-gold-500)
+  );
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3);
 }
 
+/* Gold left-edge indicator for active */
+.nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: linear-gradient(
+    to bottom,
+    var(--color-gold-400),
+    var(--color-gold-500)
+  );
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Collapsed state ─────────────────── */
 #sidebar.sidebar-collapsed .sidebar-title,
 #sidebar.sidebar-collapsed .nav-label {
   opacity: 0;
   pointer-events: none;
+  width: 0;
 }
 
 #sidebar.sidebar-collapsed .sidebar-header {
@@ -144,6 +249,22 @@
   display: none;
 }
 
+#sidebar.sidebar-collapsed .nav-link::before {
+  display: none;
+}
+
+/* ── Bottom footer area ─────────────── */
+.sidebar-footer {
+  padding: 1rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: auto;
+}
+
+.sidebar-footer .nav-link {
+  color: var(--color-sidebar-muted);
+}
+
+/* ── Responsive ──────────────────────── */
 @media (max-width: 900px) {
   .sidebar,
   #sidebar.sidebar-collapsed .sidebar {
@@ -159,9 +280,13 @@
   #sidebar.sidebar-collapsed .nav-label {
     opacity: 1;
     pointer-events: auto;
+    width: auto;
   }
 
   #sidebar.sidebar-collapsed .sidebar-brand {
     display: flex;
+  }
+  #sidebar.sidebar-collapsed .nav-link::before {
+    display: block;
   }
 }

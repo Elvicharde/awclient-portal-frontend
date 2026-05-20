@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Preview | AW Client Portal</title>
+    <link rel="icon" href="/assets/icons/aw_client_portal_icon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="alternate icon" href="/assets/aw_client_portal_icon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
+    <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
+    <link rel="stylesheet" href="/styles/sidebar.css" />
+  </head>
+  <body data-page="report_preview">
+    <div class="app-layout">
+      <aside id="sidebar"></aside>
+
+      <div class="main-shell">
+        <header id="navbar"></header>
+
+        <main class="page-content">
+          <section class="page-header page-header-row" aria-labelledby="page-title">
+            <div>
+              <p class="page-eyebrow">Reporting</p>
+              <h1 id="page-title">Report Preview</h1>
+              <p class="page-description">
+                Review generated report metadata before PDF preview is connected.
+              </p>
+            </div>
+            <button class="button button-secondary" type="button" data-back-to-reports>
+              Back to Reports
+            </button>
+          </section>
+
+          <section id="preview-loading" class="dashboard-card" aria-live="polite">
+            <div class="card-header">
+              <div>
+                <h2>Loading report</h2>
+                <p>Fetching report metadata from the backend.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="preview-error" class="dashboard-card hidden" aria-live="polite">
+            <div class="card-header">
+              <div>
+                <h2>Unable to load report</h2>
+                <p id="preview-error-message">Missing report id</p>
+              </div>
+            </div>
+            <div class="action-group">
+              <button class="button button-secondary" type="button" data-back-to-reports>
+                Back to Reports
+              </button>
+            </div>
+          </section>
+
+          <section id="preview-loaded" class="client-form hidden">
+            <article class="dashboard-card" aria-labelledby="metadata-title">
+              <div class="card-header">
+                <div>
+                  <h2 id="metadata-title">Report Metadata</h2>
+                  <p>Backend report record details.</p>
+                </div>
+                <span id="preview-status" class="badge badge-neutral">Queued</span>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <span>Client</span>
+                  <strong id="preview-client">Not available</strong>
+                </div>
+                <div class="form-field">
+                  <span>Client ID</span>
+                  <strong id="preview-client-id">Not available</strong>
+                </div>
+                <div class="form-field">
+                  <span>Quarter</span>
+                  <strong id="preview-quarter">Not available</strong>
+                </div>
+                <div class="form-field">
+                  <span>Report Type</span>
+                  <strong id="preview-report-type">Combined</strong>
+                </div>
+                <div class="form-field">
+                  <span>Generated Date</span>
+                  <strong id="preview-generated-date">Not available</strong>
+                </div>
+                <div class="form-field">
+                  <span>PDF URL</span>
+                  <strong id="preview-pdf-url">PDF URL not available</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="dashboard-card" aria-labelledby="preview-title">
+              <div class="card-header">
+                <div>
+                  <h2 id="preview-title">PDF Preview</h2>
+                  <p>PDF preview will appear here once generation is connected.</p>
+                </div>
+              </div>
+
+              <div class="empty-state">
+                <h2>Preview pending</h2>
+                <p>PDF preview will appear here once generation is connected.</p>
+              </div>
+
+              <div class="action-group">
+                <button id="download-report-pdf" class="button button-primary" type="button" disabled>
+                  Download PDF
+                </button>
+                <button class="button button-secondary" type="button" disabled title="Coming soon">
+                  Edit in Canva
+                </button>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+    <script src="/config.js"></script>
+    <script type="module" src="/dist/index.js"></script>
+  </body>
+</html>

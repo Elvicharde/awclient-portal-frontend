@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clients | AW Client Portal</title>
+    <link rel="icon" href="/assets/icons/aw_client_portal_icon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="alternate icon" href="/assets/aw_client_portal_icon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/layout.css" />
     <link rel="stylesheet" href="/styles/forms.css" />
     <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
     <link rel="stylesheet" href="/styles/sidebar.css" />
   </head>
   <body data-page="clients">
@@ -18,7 +22,10 @@
         <header id="navbar"></header>
 
         <main class="page-content">
-          <section class="page-header page-header-row" aria-labelledby="page-title">
+          <section
+            class="page-header page-header-row"
+            aria-labelledby="page-title"
+          >
             <div>
               <p class="page-eyebrow">Client Management</p>
               <h1 id="page-title">Clients</h1>
@@ -27,7 +34,13 @@
               </p>
             </div>
 
-            <button class="button button-primary" type="button">Add Client</button>
+            <button
+              id="add-client-button"
+              class="button button-primary"
+              type="button"
+            >
+              Add Client
+            </button>
           </section>
 
           <section class="toolbar" aria-label="Client filters">
@@ -41,22 +54,32 @@
                 autocomplete="off"
               />
             </label>
+
+            <label class="filter-field">
+              <span class="sr-only">Filter client status</span>
+              <select id="client-status-filter" class="form-control">
+                <option value="all">All statuses</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </label>
           </section>
 
           <section class="stats-grid" aria-label="Client summary">
             <article class="stat-card">
               <span class="stat-label">Total Clients</span>
-              <strong class="stat-value">128</strong>
+              <strong id="total-clients-stat" class="stat-value">0</strong>
               <span class="stat-note">Across all advisors</span>
             </article>
             <article class="stat-card">
               <span class="stat-label">Active Clients</span>
-              <strong class="stat-value">112</strong>
+              <strong id="active-clients-stat" class="stat-value">0</strong>
               <span class="stat-note">In good standing</span>
             </article>
             <article class="stat-card">
               <span class="stat-label">Pending Reviews</span>
-              <strong class="stat-value">16</strong>
+              <strong id="pending-clients-stat" class="stat-value">0</strong>
               <span class="stat-note">Need advisor action</span>
             </article>
           </section>
@@ -73,73 +96,44 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th scope="col">Client Name</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Advisor</th>
-                    <th scope="col">Last Updated</th>
+                    <th scope="col">
+                      <button class="table-sort" type="button" data-sort="name">
+                        Client Name
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button
+                        class="table-sort"
+                        type="button"
+                        data-sort="status"
+                      >
+                        Status
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button
+                        class="table-sort"
+                        type="button"
+                        data-sort="advisor"
+                      >
+                        Advisor
+                      </button>
+                    </th>
+                    <th scope="col">
+                      <button
+                        class="table-sort"
+                        type="button"
+                        data-sort="last_updated"
+                      >
+                        Last Updated
+                      </button>
+                    </th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="clients-table-body">
-                  <tr>
-                    <td>
-                      <strong>Anderson Family Trust</strong>
-                      <span class="table-subtext">Portfolio review due</span>
-                    </td>
-                    <td><span class="badge badge-success">Active</span></td>
-                    <td>Maya Chen</td>
-                    <td>May 14, 2026</td>
-                    <td>
-                      <div class="action-group">
-                        <button class="action-button" type="button">View</button>
-                        <button class="action-button" type="button">Edit</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Northstar Holdings</strong>
-                      <span class="table-subtext">Awaiting monthly log</span>
-                    </td>
-                    <td><span class="badge badge-warning">Pending</span></td>
-                    <td>Daniel Brooks</td>
-                    <td>May 10, 2026</td>
-                    <td>
-                      <div class="action-group">
-                        <button class="action-button" type="button">View</button>
-                        <button class="action-button" type="button">Edit</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Riverbend Capital</strong>
-                      <span class="table-subtext">Reports current</span>
-                    </td>
-                    <td><span class="badge badge-success">Active</span></td>
-                    <td>Elena Park</td>
-                    <td>May 8, 2026</td>
-                    <td>
-                      <div class="action-group">
-                        <button class="action-button" type="button">View</button>
-                        <button class="action-button" type="button">Edit</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <strong>Crescent Advisory Group</strong>
-                      <span class="table-subtext">New intake</span>
-                    </td>
-                    <td><span class="badge badge-neutral">Draft</span></td>
-                    <td>Priya Nair</td>
-                    <td>May 3, 2026</td>
-                    <td>
-                      <div class="action-group">
-                        <button class="action-button" type="button">View</button>
-                        <button class="action-button" type="button">Edit</button>
-                      </div>
-                    </td>
+                  <tr class="skeleton-row">
+                    <td colspan="5"><span class="skeleton-line"></span></td>
                   </tr>
                 </tbody>
               </table>
@@ -147,13 +141,18 @@
 
             <div id="clients-empty-state" class="empty-state hidden">
               <h2>No clients found</h2>
-              <p>Adjust the search term to view matching mock client records.</p>
+              <p>
+                Adjust the search term to view matching mock client records.
+              </p>
             </div>
           </section>
         </main>
       </div>
     </div>
 
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+    <script src="/config.js"></script>
     <script type="module" src="/dist/index.js"></script>
   </body>
 </html>
