@@ -128,9 +128,9 @@
                 </div>
               </div>
 
-              <div id="client2-retirement-section" class="form-section" data-collapsible-section>
+              <div id="client1-retirement-section" class="form-section" data-collapsible-section>
                 <button class="section-toggle" type="button" aria-expanded="true">
-                  <span>TCC - Client 1 Retirement</span>
+                  <span id="client1-retirement-section-title">TCC - Client 1 Retirement</span>
                 </button>
                 <div class="form-grid">
                   <label class="form-field dynamic-balance-field">
@@ -160,7 +160,7 @@
                 </div>
               </div>
 
-              <div class="form-section" data-collapsible-section>
+              <div id="client2-retirement-section" class="form-section" data-collapsible-section>
                 <button class="section-toggle" type="button" aria-expanded="true">
                   <span>TCC - Client 2 Retirement</span>
                 </button>
@@ -307,12 +307,16 @@
                   <dt>Private Reserve Target</dt>
                   <dd id="reserve-target-preview">$0</dd>
                 </div>
-                <div>
-                  <dt>Client 1 Retirement</dt>
+                <div id="single-retirement-summary-row" class="conditional-section">
+                  <dt>Retirement Total</dt>
+                  <dd id="retirement-total">$0</dd>
+                </div>
+                <div id="client1-retirement-summary-row" class="conditional-section">
+                  <dt>Client 1 Retirement Total</dt>
                   <dd id="client1-retirement-total">$0</dd>
                 </div>
-                <div>
-                  <dt>Client 2 Retirement</dt>
+                <div id="client2-retirement-summary-row" class="conditional-section">
+                  <dt>Client 2 Retirement Total</dt>
                   <dd id="client2-retirement-total">$0</dd>
                 </div>
                 <div>

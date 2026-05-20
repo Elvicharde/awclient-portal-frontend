@@ -249,6 +249,7 @@ function update_quarterly_calculations(): void {
   set_text("reserve-total", format_currency(reserve_target));
   set_text("excess-preview", format_currency(excess));
   set_text("reserve-target-preview", format_currency(reserve_target));
+  set_text("retirement-total", format_currency(client_1_retirement));
   set_text("client1-retirement-total", format_currency(client_1_retirement));
   set_text("client2-retirement-total", format_currency(client_2_retirement));
   set_text("non-retirement-total", format_currency(non_retirement));
@@ -431,6 +432,7 @@ function get_selected_client(): ClientSummary | undefined {
 function update_household_visibility(is_married: boolean): void {
   const client_1_inflow_label = document.querySelector("[data-client1-inflow-label]");
   const client_1_outflow_label = document.querySelector("[data-client1-outflow-label]");
+  const retirement_section_title = document.getElementById("client1-retirement-section-title");
 
   if (client_1_inflow_label) {
     client_1_inflow_label.textContent = is_married
@@ -444,6 +446,12 @@ function update_household_visibility(is_married: boolean): void {
       : "Quarterly expense / outflow";
   }
 
+  if (retirement_section_title) {
+    retirement_section_title.textContent = is_married
+      ? "TCC - Client 1 Retirement"
+      : "TCC — Retirement";
+  }
+
   document.querySelectorAll<HTMLElement>(".married-quarterly-field").forEach((field) => {
     field.classList.toggle("is-hidden", !is_married);
   });
@@ -455,6 +463,9 @@ function update_household_visibility(is_married: boolean): void {
   const client_2_section = document.getElementById("client2-retirement-section");
 
   client_2_section?.classList.toggle("is-hidden", !is_married);
+  document.getElementById("single-retirement-summary-row")?.classList.toggle("is-hidden", is_married);
+  document.getElementById("client1-retirement-summary-row")?.classList.toggle("is-hidden", !is_married);
+  document.getElementById("client2-retirement-summary-row")?.classList.toggle("is-hidden", !is_married);
   client_2_retirement_fields.forEach((field) => {
     const input = get_log_input(field);
 

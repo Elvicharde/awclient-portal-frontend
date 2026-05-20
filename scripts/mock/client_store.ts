@@ -94,8 +94,12 @@ function create_payload_from_summary(name: string): ClientPayload {
     ],
     marital_status: is_married_household ? "Married" : "Single",
     static_financial_data: {
-      client_2_monthly_expense_budget: is_married_household ? 5200 : 0,
-      client_2_monthly_salary_after_tax: is_married_household ? 8000 : 0,
+      ...(is_married_household
+        ? {
+            client_2_monthly_expense_budget: 5200,
+            client_2_monthly_salary_after_tax: 8000,
+          }
+        : {}),
       monthly_expense_budget: 9000,
       monthly_salary_after_tax: 15000,
       private_reserve_target: 54000,

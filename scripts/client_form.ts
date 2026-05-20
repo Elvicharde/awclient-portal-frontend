@@ -283,6 +283,7 @@ function update_review_summary(): void {
 
 function build_client_payload(): ClientPayload {
   const marital_status = get_select_value("marital-status") as MaritalStatus || "Single";
+  const is_married = marital_status === "Married";
   const selected_accounts = Array.from(
     document.querySelectorAll<HTMLInputElement>('input[name="accounts"]:checked'),
   ).map((account) => account.value);
@@ -293,16 +294,16 @@ function build_client_payload(): ClientPayload {
       retirement_accounts: selected_accounts.filter((account) => retirement_accounts.has(account)),
     },
     client_1: build_person("client1"),
-    client_2: marital_status === "Married" ? build_person("client2") : null,
+    client_2: is_married ? build_person("client2") : null,
     liabilities: [build_liability()],
     marital_status,
     static_financial_data: {
-      client_2_monthly_expense_budget: marital_status === "Married"
-        ? parse_number(get_input_value("client2-expense-budget"))
-        : 0,
-      client_2_monthly_salary_after_tax: marital_status === "Married"
-        ? parse_number(get_input_value("client2-monthly-salary"))
-        : 0,
+      ...(is_married
+        ? {
+            client_2_monthly_expense_budget: parse_number(get_input_value("client2-expense-budget")),
+            client_2_monthly_salary_after_tax: parse_number(get_input_value("client2-monthly-salary")),
+          }
+        : {}),
       monthly_expense_budget: parse_number(get_input_value("expense-budget")),
       monthly_salary_after_tax: parse_number(get_input_value("monthly-salary")),
       notes: get_textarea_value("financial-notes"),
