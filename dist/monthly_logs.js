@@ -1,3 +1,4 @@
+import { get_client_by_id, get_clients } from "./mock/client_store.js";
 import { mock_monthly_logs } from "./mock/logs.js";
 import { format_currency, parse_currency, set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
@@ -15,8 +16,9 @@ function populate_monthly_log_controls() {
     if (!(client_select instanceof HTMLSelectElement)) {
         return;
     }
-    client_select.innerHTML = mock_monthly_logs
-        .map((log) => `<option value="${log.client}">${log.client}</option>`)
+    const clients = get_clients();
+    client_select.innerHTML = clients
+        .map((client) => `<option value="${client.id}">${client.name}</option>`)
         .join("");
 }
 function initialize_monthly_log_selectors() {
@@ -71,7 +73,8 @@ function load_selected_log() {
     if (!(client_select instanceof HTMLSelectElement)) {
         return;
     }
-    const selected_log = mock_monthly_logs.find((log) => log.client === client_select.value)
+    const selected_client = get_client_by_id(client_select.value);
+    const selected_log = mock_monthly_logs.find((log) => log.client === selected_client?.name)
         ?? mock_monthly_logs[0];
     set_log_values(selected_log);
     update_financial_summary();

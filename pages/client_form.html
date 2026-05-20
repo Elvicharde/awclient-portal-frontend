@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Client | AW Client Portal</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/layout.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
+    <link rel="stylesheet" href="/styles/tables.css" />
+    <link rel="stylesheet" href="/styles/modals.css" />
+    <link rel="stylesheet" href="/styles/toasts.css" />
+    <link rel="stylesheet" href="/styles/sidebar.css" />
+  </head>
+  <body data-page="client_form">
+    <div class="app-layout">
+      <aside id="sidebar"></aside>
+
+      <div class="main-shell">
+        <header id="navbar"></header>
+
+        <main class="page-content">
+          <section
+            class="page-header page-header-row"
+            aria-labelledby="page-title"
+          >
+            <div>
+              <p class="page-eyebrow">Client Profile</p>
+              <h1 id="page-title">Add Client</h1>
+              <p class="page-description">
+                Capture household identity, account structure, liabilities, and
+                static financial planning details.
+              </p>
+            </div>
+
+            <div class="form-actions">
+              <button
+                id="cancel-client-form"
+                class="button button-secondary"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                id="save-client-form"
+                class="button button-primary"
+                type="button"
+              >
+                Create Client
+              </button>
+            </div>
+          </section>
+
+          <form id="client-form" class="client-form" novalidate>
+            <nav class="form-tabs" aria-label="Client form sections">
+              <button
+                class="form-tab is-active"
+                type="button"
+                data-tab-target="client-details"
+                aria-selected="true"
+              >
+                Client Details
+              </button>
+              <button
+                class="form-tab"
+                type="button"
+                data-tab-target="household"
+                aria-selected="false"
+              >
+                Household / Spouse
+              </button>
+              <button
+                class="form-tab"
+                type="button"
+                data-tab-target="accounts"
+                aria-selected="false"
+              >
+                Accounts
+              </button>
+              <button
+                class="form-tab"
+                type="button"
+                data-tab-target="liabilities"
+                aria-selected="false"
+              >
+                Liabilities
+              </button>
+              <button
+                class="form-tab"
+                type="button"
+                data-tab-target="financial-data"
+                aria-selected="false"
+              >
+                Static Financial Data
+              </button>
+              <button
+                class="form-tab"
+                type="button"
+                data-tab-target="review"
+                aria-selected="false"
+              >
+                Review
+              </button>
+            </nav>
+
+            <section
+              id="client-details"
+              class="dashboard-card card-accent form-panel is-active"
+              data-tab-panel
+            >
+              <div class="card-header">
+                <div>
+                  <h2>Client 1</h2>
+                  <p>Primary client identity and contact details.</p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-grid form-grid-three">
+                  <label class="form-field">
+                    <span>First name</span>
+                    <input
+                      id="client1-first-name"
+                      class="form-control"
+                      name="client1_first_name"
+                      type="text"
+                      required
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Middle name</span>
+                    <input
+                      id="client1-middle-name"
+                      class="form-control"
+                      name="client1_middle_name"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Last name</span>
+                    <input
+                      id="client1-last-name"
+                      class="form-control"
+                      name="client1_last_name"
+                      type="text"
+                      required
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Date of birth</span>
+                    <input
+                      id="client1-dob"
+                      class="form-control"
+                      name="client1_dob"
+                      type="date"
+                      data-age-source="client1-age"
+                      required
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Age</span>
+                    <input
+                      id="client1-age"
+                      class="form-control"
+                      name="client1_age"
+                      type="text"
+                      readonly
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Last four of SSN</span>
+                    <input
+                      id="client1-ssn-last-four"
+                      class="form-control"
+                      name="client1_ssn_last_four"
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="4"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Email</span>
+                    <input
+                      id="client1-email"
+                      class="form-control"
+                      name="client1_email"
+                      type="email"
+                      required
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Phone</span>
+                    <input
+                      id="client1-phone"
+                      class="form-control"
+                      name="client1_phone"
+                      type="tel"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Marital status</span>
+                    <select
+                      id="marital-status"
+                      class="form-control"
+                      name="marital_status"
+                    >
+                      <option value="Single">Single</option>
+                      <option value="Married">Married</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section id="household" class="dashboard-card form-panel" data-tab-panel>
+              <div class="card-header">
+                <div>
+                  <h2>Household / Spouse</h2>
+                  <p>Client 2 fields are required only for married clients.</p>
+                </div>
+                <span id="spouse-status-badge" class="badge badge-neutral">
+                  Single client
+                </span>
+              </div>
+
+              <div id="spouse-section" class="form-section conditional-section">
+                <div class="section-note">
+                  <strong>Client 2 / Spouse</strong>
+                  <span>This section applies only to married households.</span>
+                </div>
+
+                <div class="form-grid form-grid-three">
+                  <label class="form-field">
+                    <span>First name</span>
+                    <input
+                      id="client2-first-name"
+                      class="form-control spouse-field"
+                      name="client2_first_name"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Middle name</span>
+                    <input
+                      id="client2-middle-name"
+                      class="form-control spouse-field"
+                      name="client2_middle_name"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Last name</span>
+                    <input
+                      id="client2-last-name"
+                      class="form-control spouse-field"
+                      name="client2_last_name"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Date of birth</span>
+                    <input
+                      id="client2-dob"
+                      class="form-control spouse-field"
+                      name="client2_dob"
+                      type="date"
+                      data-age-source="client2-age"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Age</span>
+                    <input
+                      id="client2-age"
+                      class="form-control"
+                      name="client2_age"
+                      type="text"
+                      readonly
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Last four of SSN</span>
+                    <input
+                      id="client2-ssn-last-four"
+                      class="form-control spouse-field"
+                      name="client2_ssn_last_four"
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="4"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Email</span>
+                    <input
+                      id="client2-email"
+                      class="form-control spouse-field"
+                      name="client2_email"
+                      type="email"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Phone</span>
+                    <input
+                      id="client2-phone"
+                      class="form-control spouse-field"
+                      name="client2_phone"
+                      type="tel"
+                    />
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section id="accounts" class="dashboard-card form-panel" data-tab-panel>
+              <div class="card-header">
+                <div>
+                  <h2>Accounts</h2>
+                  <p>Select the account types used by the household.</p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Retirement Accounts</h3>
+                <div class="option-grid">
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="IRA" />
+                    <span>IRA</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Roth IRA" />
+                    <span>Roth IRA</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="401K" />
+                    <span>401K</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Pension" />
+                    <span>Pension</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Non-Retirement Accounts</h3>
+                <div class="option-grid">
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Brokerage" />
+                    <span>Brokerage</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Joint Brokerage" />
+                    <span>Joint Brokerage</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Checking" />
+                    <span>Checking</span>
+                  </label>
+                  <label class="option-card">
+                    <input type="checkbox" name="accounts" value="Savings" />
+                    <span>Savings</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Trust / Property Details</h3>
+                <div class="form-grid">
+                  <label class="option-card option-card-inline">
+                    <input id="has-trust" type="checkbox" name="has_trust" />
+                    <span>Has trust?</span>
+                  </label>
+                  <label class="form-field">
+                    <span>Trust name</span>
+                    <input
+                      id="trust-name"
+                      class="form-control"
+                      name="trust_name"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field form-field-wide">
+                    <span>Property address</span>
+                    <input
+                      id="property-address"
+                      class="form-control"
+                      name="property_address"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>City</span>
+                    <input
+                      id="property-city"
+                      class="form-control"
+                      name="property_city"
+                      type="text"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>State</span>
+                    <input
+                      id="property-state"
+                      class="form-control"
+                      name="property_state"
+                      type="text"
+                      maxlength="2"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>ZIP</span>
+                    <input
+                      id="property-zip"
+                      class="form-control"
+                      name="property_zip"
+                      type="text"
+                      inputmode="numeric"
+                    />
+                  </label>
+                </div>
+                <p class="form-helper">
+                  Zillow lookup will be added in a later phase.
+                </p>
+              </div>
+            </section>
+
+            <section
+              id="liabilities"
+              class="dashboard-card form-panel"
+              data-tab-panel
+            >
+              <div class="card-header">
+                <div>
+                  <h2>Liabilities</h2>
+                  <p>Capture current household debt details.</p>
+                </div>
+              </div>
+
+              <div class="liability-list">
+                <div class="liability-row">
+                  <label class="form-field">
+                    <span>Type</span>
+                    <select class="form-control" name="liability_type">
+                      <option>Mortgage</option>
+                      <option>Auto loan</option>
+                      <option>Credit card</option>
+                      <option>Personal loan</option>
+                      <option>Other</option>
+                    </select>
+                  </label>
+                  <label class="form-field">
+                    <span>Lender / name</span>
+                    <input class="form-control" name="liability_lender" type="text" />
+                  </label>
+                  <label class="form-field">
+                    <span>Balance</span>
+                    <input
+                      class="form-control"
+                      name="liability_balance"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Interest rate</span>
+                    <input
+                      class="form-control"
+                      name="liability_rate"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Monthly payment</span>
+                    <input
+                      class="form-control"
+                      name="liability_payment"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section
+              id="financial-data"
+              class="dashboard-card form-panel"
+              data-tab-panel
+            >
+              <div class="card-header">
+                <div>
+                  <h2>Static Financial Data</h2>
+                  <p>Household-level assumptions for planning workflows.</p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Monthly salary after tax</span>
+                    <input
+                      id="monthly-salary"
+                      class="form-control"
+                      name="monthly_salary"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Agreed monthly expense budget</span>
+                    <input
+                      id="expense-budget"
+                      class="form-control"
+                      name="expense_budget"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field">
+                    <span>Private reserve target</span>
+                    <input
+                      id="reserve-target"
+                      class="form-control"
+                      name="reserve_target"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field form-field-wide">
+                    <span>Notes</span>
+                    <textarea
+                      id="financial-notes"
+                      class="form-control"
+                      name="financial_notes"
+                      rows="4"
+                    ></textarea>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section id="review" class="dashboard-card form-panel" data-tab-panel>
+              <div class="card-header">
+                <div>
+                  <h2>Review</h2>
+                  <p>Confirm the client profile structure before saving.</p>
+                </div>
+              </div>
+
+              <div class="review-grid">
+                <article class="review-card">
+                  <span class="stat-label">Household</span>
+                  <strong id="review-household">New client</strong>
+                  <p id="review-marital-status">Single</p>
+                </article>
+                <article class="review-card">
+                  <span class="stat-label">Accounts</span>
+                  <strong id="review-accounts">0 selected</strong>
+                  <p>Selected account types</p>
+                </article>
+                <article class="review-card">
+                  <span class="stat-label">Trust / Property</span>
+                  <strong id="review-trust">No trust selected</strong>
+                  <p id="review-property">No property address</p>
+                </article>
+              </div>
+            </section>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="toast-root"></div>
+    <script type="module" src="/dist/index.js"></script>
+  </body>
+</html>

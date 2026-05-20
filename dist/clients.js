@@ -1,8 +1,6 @@
-import { mock_clients } from "./mock/clients.js";
-import { close_modal, open_modal } from "./utils/modal.js";
-import { set_button_loading } from "./utils/dom.js";
-import { show_toast } from "./utils/toast.js";
-let clients = [...mock_clients];
+import { get_clients } from "./mock/client_store.js";
+import { open_modal } from "./utils/modal.js";
+let clients = [];
 let sort_key = "name";
 let sort_direction = "asc";
 export function initialize_clients_page() {
@@ -10,11 +8,12 @@ export function initialize_clients_page() {
     if (!(table_body instanceof HTMLTableSectionElement)) {
         return;
     }
+    clients = get_clients();
     render_clients();
     initialize_client_filters();
     initialize_client_sorting();
     initialize_client_table_actions();
-    initialize_client_modals();
+    initialize_client_navigation();
     update_client_stats();
     console.log("Clients page initialized");
 }
@@ -72,7 +71,7 @@ function initialize_client_table_actions() {
             return;
         }
         if (target.closest("[data-client-action='edit']") && client) {
-            show_toast({ message: `Editing ${client.name} is a Phase 3 placeholder.`, variant: "info" });
+            window.location.href = `/pages/client_form.html?mode=edit&id=${encodeURIComponent(client.id)}`;
             close_action_menus();
         }
     });
@@ -82,33 +81,10 @@ function initialize_client_table_actions() {
         }
     });
 }
-function initialize_client_modals() {
+function initialize_client_navigation() {
     const add_client_button = document.getElementById("add-client-button");
-    add_client_button?.addEventListener("click", () => open_modal("add-client-modal"));
-    document.addEventListener("click", (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLButtonElement) || !target.matches("[data-mock-create-client]")) {
-            return;
-        }
-        set_button_loading(target, true, "Creating");
-        window.setTimeout(() => {
-            clients = [
-                {
-                    advisor: "Operations Team",
-                    id: `mock-client-${Date.now()}`,
-                    last_updated: "May 19, 2026",
-                    name: "New Mock Client",
-                    note: "Created locally for demo",
-                    status: "Draft",
-                },
-                ...clients,
-            ];
-            set_button_loading(target, false);
-            close_modal();
-            render_clients();
-            update_client_stats();
-            show_toast({ message: "Client created", variant: "success" });
-        }, 700);
+    add_client_button?.addEventListener("click", () => {
+        window.location.href = "/pages/client_form.html";
     });
 }
 function render_clients() {

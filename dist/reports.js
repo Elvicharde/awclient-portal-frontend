@@ -1,3 +1,4 @@
+import { get_clients } from "./mock/client_store.js";
 import { mock_reports } from "./mock/reports.js";
 import { set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
@@ -12,6 +13,7 @@ export function initialize_reports_page() {
     }
     render_reports();
     update_report_stats();
+    populate_report_client_select();
     initialize_report_filters();
     initialize_report_sorting();
     initialize_report_actions();
@@ -20,6 +22,15 @@ export function initialize_reports_page() {
 function initialize_report_filters() {
     const type_filter = document.getElementById("report-type-filter");
     type_filter?.addEventListener("change", render_reports);
+}
+function populate_report_client_select() {
+    const client_select = document.getElementById("report-client");
+    if (!(client_select instanceof HTMLSelectElement)) {
+        return;
+    }
+    client_select.innerHTML = get_clients()
+        .map((client) => `<option value="${client.id}">${client.name}</option>`)
+        .join("");
 }
 function initialize_report_sorting() {
     document.querySelectorAll("[data-sort]").forEach((button) => {
@@ -55,10 +66,11 @@ function initialize_report_actions() {
         if (target.matches("[data-confirm-report-generation]")) {
             set_button_loading(target, true, "Generating");
             window.setTimeout(() => {
+                const client = get_clients()[0];
                 reports = [
                     {
                         advisor: "Operations Team",
-                        client: "New Mock Client",
+                        client: client?.name ?? "New Mock Client",
                         generated_date: "May 19, 2026",
                         id: `report-${Date.now()}`,
                         report_type: "SACS",

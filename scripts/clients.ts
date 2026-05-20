@@ -1,11 +1,10 @@
-import { mock_clients, type MockClient } from "./mock/clients.js";
-import { close_modal, open_modal } from "./utils/modal.js";
-import { set_button_loading } from "./utils/dom.js";
-import { show_toast } from "./utils/toast.js";
+import { get_clients } from "./mock/client_store.js";
+import type { ClientSummary } from "./types/client.js";
+import { open_modal } from "./utils/modal.js";
 
 type ClientSortKey = "name" | "status" | "advisor" | "last_updated";
 
-let clients = [...mock_clients];
+let clients: ClientSummary[] = [];
 let sort_key: ClientSortKey = "name";
 let sort_direction: "asc" | "desc" = "asc";
 
@@ -16,11 +15,12 @@ export function initialize_clients_page(): void {
     return;
   }
 
+  clients = get_clients();
   render_clients();
   initialize_client_filters();
   initialize_client_sorting();
   initialize_client_table_actions();
-  initialize_client_modals();
+  initialize_client_navigation();
   update_client_stats();
 
   console.log("Clients page initialized");
@@ -94,7 +94,7 @@ function initialize_client_table_actions(): void {
     }
 
     if (target.closest("[data-client-action='edit']") && client) {
-      show_toast({ message: `Editing ${client.name} is a Phase 3 placeholder.`, variant: "info" });
+      window.location.href = `/pages/client_form.html?mode=edit&id=${encodeURIComponent(client.id)}`;
       close_action_menus();
     }
   });
@@ -106,39 +106,11 @@ function initialize_client_table_actions(): void {
   });
 }
 
-function initialize_client_modals(): void {
+function initialize_client_navigation(): void {
   const add_client_button = document.getElementById("add-client-button");
 
-  add_client_button?.addEventListener("click", () => open_modal("add-client-modal"));
-
-  document.addEventListener("click", (event) => {
-    const target = event.target;
-
-    if (!(target instanceof HTMLButtonElement) || !target.matches("[data-mock-create-client]")) {
-      return;
-    }
-
-    set_button_loading(target, true, "Creating");
-
-    window.setTimeout(() => {
-      clients = [
-        {
-          advisor: "Operations Team",
-          id: `mock-client-${Date.now()}`,
-          last_updated: "May 19, 2026",
-          name: "New Mock Client",
-          note: "Created locally for demo",
-          status: "Draft",
-        },
-        ...clients,
-      ];
-
-      set_button_loading(target, false);
-      close_modal();
-      render_clients();
-      update_client_stats();
-      show_toast({ message: "Client created", variant: "success" });
-    }, 700);
+  add_client_button?.addEventListener("click", () => {
+    window.location.href = "/pages/client_form.html";
   });
 }
 
@@ -155,7 +127,7 @@ function render_clients(): void {
   empty_state.classList.toggle("hidden", filtered_clients.length > 0);
 }
 
-function get_visible_clients(): MockClient[] {
+function get_visible_clients(): ClientSummary[] {
   const search_input = document.getElementById("client-search");
   const status_filter = document.getElementById("client-status-filter");
   const search_term = search_input instanceof HTMLInputElement
@@ -183,7 +155,7 @@ function get_visible_clients(): MockClient[] {
     });
 }
 
-function render_client_row(client: MockClient): string {
+function render_client_row(client: ClientSummary): string {
   return `
     <tr data-client-id="${client.id}">
       <td>
@@ -208,7 +180,7 @@ function render_client_row(client: MockClient): string {
   `;
 }
 
-function render_client_badge(status: MockClient["status"]): string {
+function render_client_badge(status: ClientSummary["status"]): string {
   const badge_class = status === "Active"
     ? "badge-success"
     : status === "Pending"
@@ -245,7 +217,7 @@ function update_sort_buttons(active_button: HTMLButtonElement): void {
   });
 }
 
-function populate_client_modal(client: MockClient): void {
+function populate_client_modal(client: ClientSummary): void {
   set_detail("name", client.name);
   set_detail("status", client.status);
   set_detail("advisor", client.advisor);
@@ -260,7 +232,7 @@ function set_detail(key: string, value: string): void {
   }
 }
 
-function find_client(client_id: string | undefined): MockClient | undefined {
+function find_client(client_id: string | undefined): ClientSummary | undefined {
   return clients.find((client) => client.id === client_id);
 }
 

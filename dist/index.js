@@ -1,4 +1,5 @@
 import { initialize_clients_page } from "./clients.js";
+import { initialize_client_form_page } from "./client_form.js";
 import { initialize_monthly_logs_page } from "./monthly_logs.js";
 import { initialize_reports_page } from "./reports.js";
 import { initialize_sidebar } from "./sidebar.js";
@@ -31,6 +32,9 @@ function initialize_current_page() {
     switch (page) {
         case "clients":
             initialize_clients_page();
+            break;
+        case "client_form":
+            initialize_client_form_page();
             break;
         case "monthly_logs":
             initialize_monthly_logs_page();
