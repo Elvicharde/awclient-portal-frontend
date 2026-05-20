@@ -1,4 +1,5 @@
 import { get_client_by_id, get_clients } from "./mock/client_store.js";
+import { fetch_clients } from "./services/client_service.js";
 import { format_currency, parse_currency, set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
 import { show_toast } from "./utils/toast.js";
@@ -59,28 +60,53 @@ const liability_field_map: Record<string, string> = {
   "Personal loan": "personal_loan_balance",
 };
 
+let available_clients: ClientSummary[] = [];
+
 export function initialize_monthly_logs_page(): void {
-  populate_quarterly_log_controls();
+  show_client_select_loading();
   initialize_quarterly_log_selectors();
   initialize_collapsible_sections();
   initialize_quarterly_log_actions();
-  load_selected_client_static_data();
   update_quarter_feedback();
-  update_quarterly_calculations();
+  void load_quarterly_log_clients();
 
   console.log("Quarterly logs page initialized");
 }
 
-function populate_quarterly_log_controls(): void {
+async function load_quarterly_log_clients(): Promise<void> {
+  try {
+    available_clients = await fetch_clients();
+  } catch (error) {
+    available_clients = get_clients();
+    show_toast({
+      message: get_error_message(error, "Backend clients unavailable. Showing mock clients."),
+      variant: "error",
+    });
+  }
+
+  populate_quarterly_log_controls(available_clients);
+  load_selected_client_static_data();
+  update_quarterly_calculations();
+}
+
+function populate_quarterly_log_controls(client_options: ClientSummary[]): void {
   const client_select = document.getElementById("monthly-log-client");
 
   if (!(client_select instanceof HTMLSelectElement)) {
     return;
   }
 
-  client_select.innerHTML = get_clients()
+  client_select.innerHTML = client_options
     .map((client) => `<option value="${client.id}">${client.name}</option>`)
     .join("");
+}
+
+function show_client_select_loading(): void {
+  const client_select = document.getElementById("monthly-log-client");
+
+  if (client_select instanceof HTMLSelectElement) {
+    client_select.innerHTML = `<option value="">Loading clients...</option>`;
+  }
 }
 
 function initialize_quarterly_log_selectors(): void {
@@ -424,9 +450,12 @@ function get_log_input(field: string): HTMLInputElement | null {
 function get_selected_client(): ClientSummary | undefined {
   const client_select = document.getElementById("monthly-log-client");
 
-  return client_select instanceof HTMLSelectElement
-    ? get_client_by_id(client_select.value)
-    : undefined;
+  if (!(client_select instanceof HTMLSelectElement)) {
+    return undefined;
+  }
+
+  return available_clients.find((client) => client.id === client_select.value)
+    ?? get_client_by_id(client_select.value);
 }
 
 function update_household_visibility(is_married: boolean): void {
@@ -485,4 +514,8 @@ function set_text(id: string, value: string): void {
   if (element) {
     element.textContent = value;
   }
+}
+
+function get_error_message(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }

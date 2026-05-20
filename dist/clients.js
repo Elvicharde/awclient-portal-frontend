@@ -1,5 +1,7 @@
 import { get_clients } from "./mock/client_store.js";
+import { fetch_clients } from "./services/client_service.js";
 import { open_modal } from "./utils/modal.js";
+import { show_toast } from "./utils/toast.js";
 let clients = [];
 let sort_key = "name";
 let sort_direction = "asc";
@@ -8,14 +10,27 @@ export function initialize_clients_page() {
     if (!(table_body instanceof HTMLTableSectionElement)) {
         return;
     }
-    clients = get_clients();
-    render_clients();
+    show_clients_loading();
     initialize_client_filters();
     initialize_client_sorting();
     initialize_client_table_actions();
     initialize_client_navigation();
-    update_client_stats();
+    void load_clients();
     console.log("Clients page initialized");
+}
+async function load_clients() {
+    try {
+        clients = await fetch_clients();
+    }
+    catch (error) {
+        clients = get_clients();
+        show_toast({
+            message: get_error_message(error, "Backend clients unavailable. Showing mock clients."),
+            variant: "error",
+        });
+    }
+    render_clients();
+    update_client_stats();
 }
 function initialize_client_filters() {
     const search_input = document.getElementById("client-search");
@@ -96,6 +111,20 @@ function render_clients() {
     const filtered_clients = get_visible_clients();
     table_body.innerHTML = filtered_clients.map(render_client_row).join("");
     empty_state.classList.toggle("hidden", filtered_clients.length > 0);
+}
+function show_clients_loading() {
+    const table_body = document.getElementById("clients-table-body");
+    const empty_state = document.getElementById("clients-empty-state");
+    if (table_body instanceof HTMLTableSectionElement) {
+        table_body.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <span class="table-subtext">Loading clients...</span>
+        </td>
+      </tr>
+    `;
+    }
+    empty_state?.classList.add("hidden");
 }
 function get_visible_clients() {
     const search_input = document.getElementById("client-search");
@@ -196,4 +225,7 @@ function close_action_menus() {
     document.querySelectorAll("[data-action-menu-toggle]").forEach((button) => {
         button.setAttribute("aria-expanded", "false");
     });
+}
+function get_error_message(error, fallback) {
+    return error instanceof Error ? error.message : fallback;
 }

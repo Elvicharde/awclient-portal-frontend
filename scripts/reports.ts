@@ -1,12 +1,17 @@
 import { get_clients } from "./mock/client_store.js";
-import { mock_reports, type MockReport } from "./mock/reports.js";
+import { mock_reports } from "./mock/reports.js";
+import { fetch_clients } from "./services/client_service.js";
+import { fetch_reports } from "./services/report_service.js";
+import type { ClientSummary } from "./types/client.js";
+import type { ReportSummary } from "./types/report.js";
 import { set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
 import { show_toast } from "./utils/toast.js";
 
 type ReportSortKey = "client" | "report_type" | "generated_date" | "status";
 
-let reports = [...mock_reports];
+let reports: ReportSummary[] = [...mock_reports];
+let report_clients: ClientSummary[] = [];
 let sort_key: ReportSortKey = "generated_date";
 let sort_direction: "asc" | "desc" = "desc";
 
@@ -17,14 +22,45 @@ export function initialize_reports_page(): void {
     return;
   }
 
-  render_reports();
-  update_report_stats();
-  populate_report_client_select();
+  show_reports_loading();
+  show_report_clients_loading();
   initialize_report_filters();
   initialize_report_sorting();
   initialize_report_actions();
+  void load_reports_page_data();
 
   console.log("Reports page initialized");
+}
+
+async function load_reports_page_data(): Promise<void> {
+  const [client_result, report_result] = await Promise.allSettled([
+    fetch_clients(),
+    fetch_reports(),
+  ]);
+
+  if (client_result.status === "fulfilled") {
+    report_clients = client_result.value;
+  } else {
+    report_clients = get_clients();
+    show_toast({
+      message: get_error_message(client_result.reason, "Backend clients unavailable. Showing mock clients."),
+      variant: "error",
+    });
+  }
+
+  if (report_result.status === "fulfilled") {
+    reports = report_result.value;
+  } else {
+    reports = [...mock_reports];
+    show_toast({
+      message: get_error_message(report_result.reason, "Backend reports unavailable. Showing mock reports."),
+      variant: "error",
+    });
+  }
+
+  populate_report_client_select();
+  render_reports();
+  update_report_stats();
 }
 
 function initialize_report_filters(): void {
@@ -40,7 +76,7 @@ function populate_report_client_select(): void {
     return;
   }
 
-  client_select.innerHTML = get_clients()
+  client_select.innerHTML = report_clients
     .map((client) => `<option value="${client.id}">${client.name}</option>`)
     .join("");
 }
@@ -88,7 +124,7 @@ function initialize_report_actions(): void {
       set_button_loading(target, true, "Generating");
 
       window.setTimeout(() => {
-        const client = get_clients()[0];
+        const client = report_clients[0] ?? get_clients()[0];
 
         reports = [
           {
@@ -96,7 +132,7 @@ function initialize_report_actions(): void {
             client: client?.name ?? "New Mock Client",
             generated_date: "May 19, 2026",
             id: `report-${Date.now()}`,
-            report_type: "SACS",
+            report_type: "Combined",
             status: "Queued",
           },
           ...reports,
@@ -125,7 +161,7 @@ function render_reports(): void {
   empty_state.classList.toggle("hidden", visible_reports.length > 0);
 }
 
-function get_visible_reports(): MockReport[] {
+function get_visible_reports(): ReportSummary[] {
   const type_filter = document.getElementById("report-type-filter");
   const selected_type = type_filter instanceof HTMLSelectElement ? type_filter.value : "all";
 
@@ -140,7 +176,7 @@ function get_visible_reports(): MockReport[] {
     });
 }
 
-function render_report_row(report: MockReport): string {
+function render_report_row(report: ReportSummary): string {
   return `
     <tr>
       <td>
@@ -159,7 +195,7 @@ function render_report_row(report: MockReport): string {
   `;
 }
 
-function render_report_badge(status: MockReport["status"]): string {
+function render_report_badge(status: ReportSummary["status"]): string {
   const badge_class = status === "Ready"
     ? "badge-success"
     : status === "Review"
@@ -190,4 +226,33 @@ function set_text(id: string, value: string): void {
   if (element) {
     element.textContent = value;
   }
+}
+
+function show_reports_loading(): void {
+  const table_body = document.getElementById("reports-table-body");
+  const empty_state = document.getElementById("reports-empty-state");
+
+  if (table_body instanceof HTMLTableSectionElement) {
+    table_body.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <span class="table-subtext">Loading reports...</span>
+        </td>
+      </tr>
+    `;
+  }
+
+  empty_state?.classList.add("hidden");
+}
+
+function show_report_clients_loading(): void {
+  const client_select = document.getElementById("report-client");
+
+  if (client_select instanceof HTMLSelectElement) {
+    client_select.innerHTML = `<option value="">Loading clients...</option>`;
+  }
+}
+
+function get_error_message(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
