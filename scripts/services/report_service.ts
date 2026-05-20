@@ -1,9 +1,15 @@
 import { api_get } from "../api.js";
-import type { ReportStatus, ReportSummary, ReportType } from "../types/report.js";
+import type {
+  GeneratedReport,
+  ReportStatus,
+  ReportSummary,
+  ReportType,
+} from "../types/report.js";
 
 interface BackendReport {
   id?: number | string;
   client_id?: number | string;
+  client_name?: string | null;
   report_type?: string | null;
   quarter?: string | null;
   status?: string | null;
@@ -16,6 +22,17 @@ export async function fetch_reports(): Promise<ReportSummary[]> {
   const reports = get_items(response);
 
   return reports.map(normalize_report).filter((report): report is ReportSummary => report !== null);
+}
+
+export async function fetch_report_by_id(id: string): Promise<GeneratedReport> {
+  const response = await api_get<unknown>(`/api/reports/${encodeURIComponent(id)}`);
+  const report = normalize_generated_report(response);
+
+  if (!report) {
+    throw new Error("Backend returned an invalid report response");
+  }
+
+  return report;
 }
 
 function get_items(response: unknown): unknown[] {
@@ -48,6 +65,31 @@ function normalize_report(value: unknown): ReportSummary | null {
     generated_date: format_date(report.generated_at),
     id,
     pdf_url: report.pdf_url ?? undefined,
+    report_type: normalize_report_type(report.report_type),
+    status: normalize_report_status(report.status),
+  };
+}
+
+function normalize_generated_report(value: unknown): GeneratedReport | null {
+  if (!is_record(value)) {
+    return null;
+  }
+
+  const report = value as BackendReport;
+  const id = report.id === undefined ? "" : String(report.id);
+
+  if (!id) {
+    return null;
+  }
+
+  return {
+    client_id: report.client_id === undefined ? undefined : String(report.client_id),
+    client_name: report.client_name ?? undefined,
+    generated_at: report.generated_at ?? undefined,
+    generated_date: format_date(report.generated_at),
+    id,
+    pdf_url: report.pdf_url ?? undefined,
+    quarter: report.quarter ?? undefined,
     report_type: normalize_report_type(report.report_type),
     status: normalize_report_status(report.status),
   };

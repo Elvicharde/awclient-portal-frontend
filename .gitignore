@@ -36,3 +36,10 @@ Thumbs.db
 
 # Misc
 coverage/
+
+# instruction files
+ARCHITECTURE.md
+.github/copilot-instructions.md
+
+# config file
+config.js

@@ -4,6 +4,14 @@ export async function fetch_reports() {
     const reports = get_items(response);
     return reports.map(normalize_report).filter((report) => report !== null);
 }
+export async function fetch_report_by_id(id) {
+    const response = await api_get(`/api/reports/${encodeURIComponent(id)}`);
+    const report = normalize_generated_report(response);
+    if (!report) {
+        throw new Error("Backend returned an invalid report response");
+    }
+    return report;
+}
 function get_items(response) {
     if (Array.isArray(response)) {
         return response;
@@ -28,6 +36,27 @@ function normalize_report(value) {
         generated_date: format_date(report.generated_at),
         id,
         pdf_url: report.pdf_url ?? undefined,
+        report_type: normalize_report_type(report.report_type),
+        status: normalize_report_status(report.status),
+    };
+}
+function normalize_generated_report(value) {
+    if (!is_record(value)) {
+        return null;
+    }
+    const report = value;
+    const id = report.id === undefined ? "" : String(report.id);
+    if (!id) {
+        return null;
+    }
+    return {
+        client_id: report.client_id === undefined ? undefined : String(report.client_id),
+        client_name: report.client_name ?? undefined,
+        generated_at: report.generated_at ?? undefined,
+        generated_date: format_date(report.generated_at),
+        id,
+        pdf_url: report.pdf_url ?? undefined,
+        quarter: report.quarter ?? undefined,
         report_type: normalize_report_type(report.report_type),
         status: normalize_report_status(report.status),
     };
