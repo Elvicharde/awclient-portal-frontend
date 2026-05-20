@@ -1,4 +1,5 @@
 import { create_client, get_client_by_id, update_client } from "./mock/client_store.js";
+import { fetch_client_by_id } from "./services/client_service.js";
 import type { ClientPayload, ClientPerson, MaritalStatus } from "./types/client.js";
 import { set_button_loading } from "./utils/dom.js";
 import { show_toast } from "./utils/toast.js";
@@ -39,7 +40,7 @@ function initialize_mode(): { is_edit_mode: boolean; client_id: string | null } 
   }
 
   if (is_edit_mode && client_id) {
-    populate_edit_profile(client_id);
+    void populate_edit_profile(client_id);
     set_identity_readonly();
   }
 
@@ -138,11 +139,17 @@ function initialize_review_updates(): void {
   });
 }
 
-function populate_edit_profile(client_id: string): void {
-  const client = get_client_by_id(client_id);
+async function populate_edit_profile(client_id: string): Promise<void> {
+  let client = get_client_by_id(client_id);
+
+  try {
+    client = await fetch_client_by_id(client_id) ?? client;
+  } catch {
+    // Keep local mock fallback for offline frontend demos.
+  }
 
   if (!client) {
-    show_toast({ message: "Mock client not found for edit mode", variant: "error" });
+    show_toast({ message: "Client not found for edit mode", variant: "error" });
     return;
   }
 
@@ -173,6 +180,7 @@ function populate_edit_profile(client_id: string): void {
   );
   set_control_value("reserve_target", String(payload.static_financial_data.private_reserve_target || ""));
   set_control_value("financial_notes", payload.static_financial_data.notes ?? "");
+  set_liability_values(payload.liabilities[0]);
 
   [...payload.account_structure.retirement_accounts, ...payload.account_structure.non_retirement_accounts]
     .forEach((account) => {
@@ -184,6 +192,10 @@ function populate_edit_profile(client_id: string): void {
         checkbox.checked = true;
       }
     });
+
+  update_spouse_section();
+  update_all_ages();
+  update_review_summary();
 }
 
 function set_identity_readonly(): void {
@@ -347,6 +359,18 @@ function build_liability() {
     liability_type: type_select?.value ?? "Mortgage",
     monthly_payment: parse_number(payment_input?.value ?? ""),
   };
+}
+
+function set_liability_values(liability: ClientPayload["liabilities"][number] | undefined): void {
+  if (!liability) {
+    return;
+  }
+
+  set_control_value("liability_type", liability.liability_type);
+  set_control_value("liability_lender", liability.lender_name);
+  set_control_value("liability_balance", String(liability.balance || ""));
+  set_control_value("liability_rate", String(liability.interest_rate || ""));
+  set_control_value("liability_payment", String(liability.monthly_payment || ""));
 }
 
 function validate_client_payload(payload: ClientPayload): string[] {

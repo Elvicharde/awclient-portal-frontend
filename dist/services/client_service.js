@@ -73,12 +73,12 @@ function create_payload(client, marital_status) {
         liabilities: get_liabilities(client.liabilities_json),
         marital_status,
         static_financial_data: {
-            client_2_monthly_expense_budget: client.client_2_monthly_expense_budget ?? undefined,
-            client_2_monthly_salary_after_tax: client.client_2_monthly_salary_after_tax ?? undefined,
-            insurance_deductible_total: client.insurance_deductible_total ?? undefined,
-            monthly_expense_budget: client.client_1_monthly_expense_budget ?? 0,
-            monthly_salary_after_tax: client.client_1_monthly_salary_after_tax ?? 0,
-            private_reserve_target: client.private_reserve_target ?? 0,
+            client_2_monthly_expense_budget: parse_optional_number(client.client_2_monthly_expense_budget),
+            client_2_monthly_salary_after_tax: parse_optional_number(client.client_2_monthly_salary_after_tax),
+            insurance_deductible_total: parse_optional_number(client.insurance_deductible_total),
+            monthly_expense_budget: parse_number(client.client_1_monthly_expense_budget),
+            monthly_salary_after_tax: parse_number(client.client_1_monthly_salary_after_tax),
+            private_reserve_target: parse_number(client.private_reserve_target),
         },
         trust_details: get_trust_details(client.trust_details_json),
     };
@@ -144,20 +144,6 @@ function parse_powershell_object_string(value) {
         return result;
     }, {});
 }
-function get_account_names_from_normalized(value) {
-    if (Array.isArray(value)) {
-        return value.filter((item) => typeof item === "string");
-    }
-    if (!is_record(value)) {
-        return [];
-    }
-    return Object.entries(value).flatMap(([key, nested_value]) => {
-        if (Array.isArray(nested_value)) {
-            return nested_value.filter((item) => typeof item === "string");
-        }
-        return nested_value ? [key] : [];
-    });
-}
 function get_trust_details(value) {
     const normalized_value = normalize_json_value(value);
     if (!is_record(normalized_value)) {
@@ -178,12 +164,28 @@ function get_liabilities(value) {
         return [];
     }
     return Object.entries(normalized_value).map(([key, nested_value]) => ({
-        balance: typeof nested_value === "number" ? nested_value : 0,
+        balance: parse_number(nested_value),
         interest_rate: 0,
         lender_name: key,
         liability_type: key,
         monthly_payment: 0,
     }));
+}
+function parse_number(value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+    if (typeof value === "string") {
+        const parsed_value = Number(value.replace(/[^0-9.-]/g, ""));
+        return Number.isFinite(parsed_value) ? parsed_value : 0;
+    }
+    return 0;
+}
+function parse_optional_number(value) {
+    if (value === null || value === undefined || value === "") {
+        return undefined;
+    }
+    return parse_number(value);
 }
 function format_date(value) {
     if (!value) {

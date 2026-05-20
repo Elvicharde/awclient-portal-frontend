@@ -129,6 +129,7 @@
   display: grid;
   align-content: start;
   gap: var(--space-6);
+  justify-items: start;
   min-width: 0;
   min-height: calc(100vh - var(--navbar-height, 64px));
   padding: var(--space-8) var(--space-10);
@@ -629,6 +630,22 @@
   }
   .review-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page-content {
+    justify-items: center;
+    padding-inline: clamp(var(--space-10), 4vw, 5rem);
+  }
+
+  .page-header,
+  .toolbar,
+  .dashboard-card,
+  .stats-grid,
+  .content-grid,
+  .client-form {
+    --content-max-width: 1400px;
   }
 }
 

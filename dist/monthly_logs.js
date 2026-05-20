@@ -3,6 +3,7 @@ import { fetch_clients } from "./services/client_service.js";
 import { format_currency, parse_currency, set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
 import { show_toast } from "./utils/toast.js";
+const quarter_multiplier = 4;
 const quarter_labels = {
     Q1: "Q1 — Jan 1 to Mar 31",
     Q2: "Q2 — Apr 1 to Jun 30",
@@ -197,7 +198,7 @@ function load_selected_client_static_data() {
     if (!(client_select instanceof HTMLSelectElement)) {
         return;
     }
-    const selected_client = get_client_by_id(client_select.value);
+    const selected_client = get_selected_client();
     reset_profile_field_state();
     clear_prefilled_quarterly_fields();
     if (!selected_client) {
@@ -232,7 +233,7 @@ function update_quarterly_calculations() {
     const inflow = get_field_total(inflow_fields);
     const outflow = get_field_total(outflow_fields);
     const insurance_deductible = get_field_total(["insurance_deductible"]);
-    const monthly_expense_basis = outflow / 3;
+    const monthly_expense_basis = outflow / quarter_multiplier;
     const calculated_reserve_target = (6 * monthly_expense_basis) + insurance_deductible;
     const reserve_target = selected_profile_reserve_target ?? calculated_reserve_target;
     const excess = inflow - outflow;
@@ -343,10 +344,10 @@ function clear_prefilled_quarterly_fields() {
 }
 function prefill_static_financial_data(client) {
     const static_data = client.payload.static_financial_data;
-    const client_1_quarterly_inflow = static_data.monthly_salary_after_tax * 3;
-    const client_1_quarterly_outflow = static_data.monthly_expense_budget * 3;
-    const client_2_quarterly_inflow = (static_data.client_2_monthly_salary_after_tax ?? 0) * 3;
-    const client_2_quarterly_outflow = (static_data.client_2_monthly_expense_budget ?? 0) * 3;
+    const client_1_quarterly_inflow = static_data.monthly_salary_after_tax * quarter_multiplier;
+    const client_1_quarterly_outflow = static_data.monthly_expense_budget * quarter_multiplier;
+    const client_2_quarterly_inflow = (static_data.client_2_monthly_salary_after_tax ?? 0) * quarter_multiplier;
+    const client_2_quarterly_outflow = (static_data.client_2_monthly_expense_budget ?? 0) * quarter_multiplier;
     const total_monthly_expense = static_data.monthly_expense_budget
         + (client.payload.marital_status === "Married"
             ? static_data.client_2_monthly_expense_budget ?? 0
@@ -484,7 +485,7 @@ function set_static_readonly_field(field, value, is_readonly) {
         return;
     }
     input.readOnly = is_readonly;
-    input.value = value > 0 ? format_currency(value) : "";
+    input.value = is_readonly || value > 0 ? format_currency(value) : "";
     update_field_completion(input);
 }
 function configure_dynamic_balance_fields(client) {

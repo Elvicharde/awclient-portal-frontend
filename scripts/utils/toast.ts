@@ -67,19 +67,23 @@ export function show_toast({
   toast.append(icon, content, close_button);
   toast_root.append(toast);
 
-  const remove_toast = (): void => {
+  let exit_timer: number | undefined;
+  const dismiss_timer = window.setTimeout(remove_toast, duration);
+
+  function remove_toast(): void {
+    window.clearTimeout(dismiss_timer);
+
     if (toast.classList.contains("toast-exit")) {
       return;
     }
 
     toast.classList.add("toast-exit");
     toast.addEventListener("transitionend", () => toast.remove(), { once: true });
-  };
-
-  const dismiss_timer = window.setTimeout(remove_toast, duration);
+    exit_timer = window.setTimeout(() => toast.remove(), 260);
+  }
 
   close_button.addEventListener("click", () => {
-    window.clearTimeout(dismiss_timer);
+    window.clearTimeout(exit_timer);
     remove_toast();
   });
 }

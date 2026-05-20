@@ -39,6 +39,10 @@ async function api_request(method, path, body, timeout_ms) {
     }
 }
 function get_api_base_url() {
+    const configured_api_url = window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL?.trim();
+    if (configured_api_url) {
+        return configured_api_url;
+    }
     const hostname = window.location.hostname;
     if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "") {
         return LOCAL_API_BASE_URL;

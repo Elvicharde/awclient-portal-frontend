@@ -2,6 +2,14 @@ const LOCAL_API_BASE_URL = "http://127.0.0.1:8000";
 const DEPLOYED_API_BASE_URL = "https://YOUR-RAILWAY-BACKEND-URL";
 const DEFAULT_TIMEOUT_MS = 6000;
 
+declare global {
+  interface Window {
+    AW_CLIENT_PORTAL_CONFIG?: {
+      API_BASE_URL?: string;
+    };
+  }
+}
+
 export const API_BASE_URL = get_api_base_url();
 
 export async function api_get<T>(path: string, timeout_ms = DEFAULT_TIMEOUT_MS): Promise<T> {
@@ -57,6 +65,12 @@ async function api_request<T>(
 }
 
 function get_api_base_url(): string {
+  const configured_api_url = window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL?.trim();
+
+  if (configured_api_url) {
+    return configured_api_url;
+  }
+
   const hostname = window.location.hostname;
 
   if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "") {
