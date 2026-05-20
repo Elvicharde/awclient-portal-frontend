@@ -179,8 +179,16 @@ async function populate_edit_profile(client_id: string): Promise<void> {
     String(payload.static_financial_data.client_2_monthly_expense_budget || ""),
   );
   set_control_value("reserve_target", String(payload.static_financial_data.private_reserve_target || ""));
+  set_control_value(
+    "insurance_deductible_total",
+    String(payload.static_financial_data.insurance_deductible_total ?? ""),
+  );
   set_control_value("financial_notes", payload.static_financial_data.notes ?? "");
   set_liability_values(payload.liabilities[0]);
+
+  document.querySelectorAll<HTMLInputElement>('input[name="accounts"]').forEach((checkbox) => {
+    checkbox.checked = false;
+  });
 
   [...payload.account_structure.retirement_accounts, ...payload.account_structure.non_retirement_accounts]
     .forEach((account) => {
@@ -227,12 +235,24 @@ function update_spouse_section(): void {
   document.querySelectorAll<HTMLInputElement>(".spouse-field").forEach((field) => {
     field.required = is_married && field.id !== "client2-middle-name";
     field.disabled = !is_married;
+
+    if (!is_married) {
+      field.value = "";
+    }
   });
 
   document.querySelectorAll<HTMLInputElement>(".spouse-financial-input").forEach((field) => {
     field.required = is_married;
     field.disabled = !is_married;
+
+    if (!is_married) {
+      field.value = "";
+    }
   });
+
+  if (!is_married) {
+    set_control_value("client2_age", "");
+  }
 }
 
 function update_all_ages(): void {
@@ -318,6 +338,7 @@ function build_client_payload(): ClientPayload {
         : {}),
       monthly_expense_budget: parse_number(get_input_value("expense-budget")),
       monthly_salary_after_tax: parse_number(get_input_value("monthly-salary")),
+      insurance_deductible_total: parse_number(get_input_value("insurance-deductible-total")),
       notes: get_textarea_value("financial-notes"),
       private_reserve_target: parse_number(get_input_value("reserve-target")),
     },
