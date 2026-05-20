@@ -13,6 +13,8 @@ export interface ClientPerson {
 
 export interface AccountStructure {
   retirement_accounts: string[];
+  client_1_retirement_accounts?: string[];
+  client_2_retirement_accounts?: string[];
   non_retirement_accounts: string[];
 }
 
@@ -39,6 +41,7 @@ export interface StaticFinancialData {
   client_2_monthly_salary_after_tax?: number;
   client_2_monthly_expense_budget?: number;
   private_reserve_target: number;
+  insurance_deductible_total?: number;
   notes?: string;
 }
 

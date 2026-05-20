@@ -90,8 +90,14 @@
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
   min-height: 100%;
+  margin: 0;
+}
+
+html {
+  width: 100%;
   font-family: "DM Sans", "Segoe UI", sans-serif;
   font-size: 15px;
   color: var(--color-text);
@@ -100,8 +106,8 @@ html {
 }
 
 body {
+  width: 100%;
   min-height: 100vh;
-  margin: 0;
   color: var(--color-text);
   background: var(--color-bg);
 }

@@ -3,6 +3,7 @@
 .app-layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  width: 100%;
   min-height: 100vh;
   background: var(--color-bg);
   transition: grid-template-columns var(--transition);
@@ -19,6 +20,7 @@
 .main-shell {
   display: grid;
   grid-template-rows: var(--navbar-height) minmax(0, 1fr);
+  width: 100%;
   min-width: 0;
   min-height: 100vh;
 }
@@ -128,6 +130,7 @@
   align-content: start;
   gap: var(--space-6);
   min-width: 0;
+  min-height: calc(100vh - var(--navbar-height, 64px));
   padding: var(--space-8) var(--space-10);
   animation: pageIn 280ms ease both;
 }

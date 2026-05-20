@@ -44,6 +44,24 @@ const account_field_map = {
     "Roth IRA": "client1_roth_ira",
     Savings: "savings",
 };
+const client_1_retirement_field_map = {
+    "401K": "client1_401k",
+    IRA: "client1_ira",
+    Pension: "client1_pension",
+    "Roth IRA": "client1_roth_ira",
+};
+const client_2_retirement_field_map = {
+    "401K": "client2_401k",
+    IRA: "client2_ira",
+    Pension: "client2_pension",
+    "Roth IRA": "client2_roth_ira",
+};
+const non_retirement_field_map = {
+    Brokerage: "brokerage",
+    Checking: "checking",
+    "Joint Brokerage": "joint_brokerage",
+    Savings: "savings",
+};
 const liability_field_map = {
     "Auto loan": "auto_loan_balance",
     "Credit card": "credit_card_balance",
@@ -52,6 +70,7 @@ const liability_field_map = {
     "Personal loan": "personal_loan_balance",
 };
 let available_clients = [];
+let selected_profile_reserve_target = null;
 export function initialize_monthly_logs_page() {
     show_client_select_loading();
     initialize_quarterly_log_selectors();
@@ -179,13 +198,16 @@ function load_selected_client_static_data() {
         return;
     }
     const selected_client = get_client_by_id(client_select.value);
+    reset_profile_field_state();
     clear_prefilled_quarterly_fields();
     if (!selected_client) {
         update_household_visibility(false);
+        configure_dynamic_balance_fields(undefined);
         return;
     }
     update_household_visibility(selected_client.payload.marital_status === "Married");
     prefill_static_financial_data(selected_client);
+    configure_dynamic_balance_fields(selected_client);
     prefill_account_structure(selected_client);
     prefill_trust_details(selected_client);
     prefill_liability_structure(selected_client.payload.liabilities);
@@ -211,7 +233,8 @@ function update_quarterly_calculations() {
     const outflow = get_field_total(outflow_fields);
     const insurance_deductible = get_field_total(["insurance_deductible"]);
     const monthly_expense_basis = outflow / 3;
-    const reserve_target = (6 * monthly_expense_basis) + insurance_deductible;
+    const calculated_reserve_target = (6 * monthly_expense_basis) + insurance_deductible;
+    const reserve_target = selected_profile_reserve_target ?? calculated_reserve_target;
     const excess = inflow - outflow;
     const client_1_retirement = get_field_total(client_1_retirement_fields);
     const client_2_retirement = is_married ? get_field_total(client_2_retirement_fields) : 0;
@@ -324,18 +347,43 @@ function prefill_static_financial_data(client) {
     const client_1_quarterly_outflow = static_data.monthly_expense_budget * 3;
     const client_2_quarterly_inflow = (static_data.client_2_monthly_salary_after_tax ?? 0) * 3;
     const client_2_quarterly_outflow = (static_data.client_2_monthly_expense_budget ?? 0) * 3;
+    const total_monthly_expense = static_data.monthly_expense_budget
+        + (client.payload.marital_status === "Married"
+            ? static_data.client_2_monthly_expense_budget ?? 0
+            : 0);
+    const insurance_deductible = static_data.insurance_deductible_total ?? 0;
+    const calculated_reserve_target = (6 * total_monthly_expense) + insurance_deductible;
     set_field_value("client1_quarterly_inflow", client_1_quarterly_inflow);
     set_field_value("client1_quarterly_outflow", client_1_quarterly_outflow);
     set_field_value("client2_quarterly_inflow", client_2_quarterly_inflow);
     set_field_value("client2_quarterly_outflow", client_2_quarterly_outflow);
+    set_static_readonly_field("insurance_deductible", insurance_deductible, static_data.insurance_deductible_total !== undefined);
+    selected_profile_reserve_target = static_data.private_reserve_target > 0
+        ? static_data.private_reserve_target
+        : calculated_reserve_target;
 }
 function prefill_account_structure(client) {
-    const accounts = [
-        ...client.payload.account_structure.retirement_accounts,
-        ...client.payload.account_structure.non_retirement_accounts,
-    ];
-    accounts.forEach((account) => {
-        const field = account_field_map[account];
+    const client_1_retirement_accounts = get_client_1_retirement_accounts(client);
+    const client_2_retirement_accounts = get_client_2_retirement_accounts(client);
+    const non_retirement_accounts = client.payload.account_structure.non_retirement_accounts;
+    client_1_retirement_accounts.forEach((account) => {
+        const field = client_1_retirement_field_map[account] ?? account_field_map[account];
+        const input = field ? get_log_input(field) : null;
+        if (!input) {
+            return;
+        }
+        set_field_value(field, parse_currency(input.dataset.lastValue ?? "0"));
+    });
+    client_2_retirement_accounts.forEach((account) => {
+        const field = client_2_retirement_field_map[account];
+        const input = field ? get_log_input(field) : null;
+        if (!input) {
+            return;
+        }
+        set_field_value(field, parse_currency(input.dataset.lastValue ?? "0"));
+    });
+    non_retirement_accounts.forEach((account) => {
+        const field = non_retirement_field_map[account] ?? account_field_map[account];
         const input = field ? get_log_input(field) : null;
         if (!input) {
             return;
@@ -345,9 +393,13 @@ function prefill_account_structure(client) {
 }
 function prefill_trust_details(client) {
     if (!client.payload.trust_details.has_trust) {
+        set_dynamic_field_enabled("trust_property_value", false);
+        set_dynamic_field_enabled("zillow_home_value", false, false);
         return;
     }
     const input = get_log_input("trust_property_value");
+    set_dynamic_field_enabled("trust_property_value", true);
+    set_dynamic_field_enabled("zillow_home_value", true, false);
     set_field_value("trust_property_value", parse_currency(input?.dataset.lastValue ?? "0"));
 }
 function prefill_liability_structure(liabilities) {
@@ -413,6 +465,79 @@ function set_text(id, value) {
     if (element) {
         element.textContent = value;
     }
+}
+function reset_profile_field_state() {
+    selected_profile_reserve_target = null;
+    set_static_readonly_field("insurance_deductible", 0, false);
+    [
+        ...client_1_retirement_fields,
+        ...client_2_retirement_fields,
+        ...non_retirement_fields,
+        "trust_property_value",
+        "zillow_home_value",
+        ...liability_fields,
+    ].forEach((field) => set_dynamic_field_enabled(field, true, field !== "zillow_home_value"));
+}
+function set_static_readonly_field(field, value, is_readonly) {
+    const input = get_log_input(field);
+    if (!input) {
+        return;
+    }
+    input.readOnly = is_readonly;
+    input.value = value > 0 ? format_currency(value) : "";
+    update_field_completion(input);
+}
+function configure_dynamic_balance_fields(client) {
+    if (!client) {
+        return;
+    }
+    const client_1_retirement_accounts = get_client_1_retirement_accounts(client);
+    const client_2_retirement_accounts = get_client_2_retirement_accounts(client);
+    const non_retirement_accounts = client.payload.account_structure.non_retirement_accounts;
+    const liabilities = client.payload.liabilities.map((liability) => liability.liability_type);
+    configure_field_group(client_1_retirement_fields, get_fields_for_accounts(client_1_retirement_accounts, client_1_retirement_field_map));
+    if (client.payload.marital_status === "Married") {
+        configure_field_group(client_2_retirement_fields, get_fields_for_accounts(client_2_retirement_accounts, client_2_retirement_field_map));
+    }
+    configure_field_group(non_retirement_fields, get_fields_for_accounts(non_retirement_accounts, non_retirement_field_map));
+    configure_field_group(liability_fields, get_fields_for_accounts(liabilities, liability_field_map));
+}
+function configure_field_group(all_fields, active_fields) {
+    if (active_fields.length === 0) {
+        all_fields.forEach((field) => set_dynamic_field_enabled(field, true));
+        return;
+    }
+    all_fields.forEach((field) => {
+        set_dynamic_field_enabled(field, active_fields.includes(field));
+    });
+}
+function set_dynamic_field_enabled(field, is_enabled, is_required = true) {
+    const input = get_log_input(field);
+    const field_container = input?.closest(".form-field");
+    if (!input) {
+        return;
+    }
+    input.disabled = !is_enabled;
+    input.toggleAttribute("data-required-log", is_enabled && is_required);
+    if (!is_enabled) {
+        input.value = "";
+        input.classList.remove("is-incomplete");
+        field_container?.classList.remove("is-incomplete");
+    }
+    field_container?.classList.toggle("is-hidden", !is_enabled);
+}
+function get_fields_for_accounts(accounts, field_map) {
+    return accounts
+        .map((account) => field_map[account])
+        .filter((field) => Boolean(field));
+}
+function get_client_1_retirement_accounts(client) {
+    return client.payload.account_structure.client_1_retirement_accounts?.length
+        ? client.payload.account_structure.client_1_retirement_accounts
+        : client.payload.account_structure.retirement_accounts;
+}
+function get_client_2_retirement_accounts(client) {
+    return client.payload.account_structure.client_2_retirement_accounts ?? [];
 }
 function get_error_message(error, fallback) {
     return error instanceof Error ? error.message : fallback;

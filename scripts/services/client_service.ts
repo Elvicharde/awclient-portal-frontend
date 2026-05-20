@@ -111,6 +111,8 @@ function create_payload(client: BackendClient, marital_status: MaritalStatus): C
 
   return {
     account_structure: {
+      client_1_retirement_accounts: get_retirement_account_names(client.retirement_accounts_json, "client_1"),
+      client_2_retirement_accounts: get_retirement_account_names(client.retirement_accounts_json, "client_2"),
       non_retirement_accounts: get_account_names(client.non_retirement_accounts_json),
       retirement_accounts: get_account_names(client.retirement_accounts_json),
     },
@@ -121,6 +123,7 @@ function create_payload(client: BackendClient, marital_status: MaritalStatus): C
     static_financial_data: {
       client_2_monthly_expense_budget: client.client_2_monthly_expense_budget ?? undefined,
       client_2_monthly_salary_after_tax: client.client_2_monthly_salary_after_tax ?? undefined,
+      insurance_deductible_total: client.insurance_deductible_total ?? undefined,
       monthly_expense_budget: client.client_1_monthly_expense_budget ?? 0,
       monthly_salary_after_tax: client.client_1_monthly_salary_after_tax ?? 0,
       private_reserve_target: client.private_reserve_target ?? 0,
@@ -134,6 +137,81 @@ function normalize_marital_status(value: string | null | undefined): MaritalStat
 }
 
 function get_account_names(value: unknown): string[] {
+  const normalized_value = normalize_json_value(value);
+
+  if (Array.isArray(normalized_value)) {
+    return normalized_value.filter((item): item is string => typeof item === "string");
+  }
+
+  if (!is_record(normalized_value)) {
+    return [];
+  }
+
+  return Object.entries(normalized_value).flatMap(([key, nested_value]) => {
+    if (Array.isArray(nested_value)) {
+      return nested_value.filter((item): item is string => typeof item === "string");
+    }
+
+    return nested_value ? [key] : [];
+  });
+}
+
+function get_retirement_account_names(value: unknown, owner_key: "client_1" | "client_2"): string[] {
+  const normalized_value = normalize_json_value(value);
+
+  if (!is_record(normalized_value)) {
+    return owner_key === "client_1" ? get_account_names(normalized_value) : [];
+  }
+
+  const owner_accounts = normalized_value[owner_key];
+
+  if (Array.isArray(owner_accounts)) {
+    return owner_accounts.filter((item): item is string => typeof item === "string");
+  }
+
+  if (owner_key === "client_1" && !("client_1" in normalized_value) && !("client_2" in normalized_value)) {
+    return get_account_names(normalized_value);
+  }
+
+  return [];
+}
+
+function normalize_json_value(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return parse_powershell_object_string(value);
+  }
+}
+
+function parse_powershell_object_string(value: string): Record<string, boolean> | null {
+  const trimmed_value = value.trim();
+
+  if (!trimmed_value.startsWith("@{") || !trimmed_value.endsWith("}")) {
+    return null;
+  }
+
+  return trimmed_value
+    .slice(2, -1)
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce<Record<string, boolean>>((result, entry) => {
+      const [key, raw_value] = entry.split("=").map((part) => part.trim());
+
+      if (key) {
+        result[key] = raw_value?.toLowerCase() !== "false";
+      }
+
+      return result;
+    }, {});
+}
+
+function get_account_names_from_normalized(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.filter((item): item is string => typeof item === "string");
   }
@@ -152,26 +230,30 @@ function get_account_names(value: unknown): string[] {
 }
 
 function get_trust_details(value: unknown): ClientPayload["trust_details"] {
-  if (!is_record(value)) {
+  const normalized_value = normalize_json_value(value);
+
+  if (!is_record(normalized_value)) {
     return { has_trust: false };
   }
 
   return {
-    city: get_string(value.city),
-    has_trust: Boolean(value.has_trust),
-    property_address: get_string(value.property_address),
-    state: get_string(value.state),
-    trust_name: get_string(value.trust_name),
-    zip: get_string(value.zip),
+    city: get_string(normalized_value.city),
+    has_trust: Boolean(normalized_value.has_trust),
+    property_address: get_string(normalized_value.property_address),
+    state: get_string(normalized_value.state),
+    trust_name: get_string(normalized_value.trust_name),
+    zip: get_string(normalized_value.zip),
   };
 }
 
 function get_liabilities(value: unknown): ClientPayload["liabilities"] {
-  if (!is_record(value)) {
+  const normalized_value = normalize_json_value(value);
+
+  if (!is_record(normalized_value)) {
     return [];
   }
 
-  return Object.entries(value).map(([key, nested_value]) => ({
+  return Object.entries(normalized_value).map(([key, nested_value]) => ({
     balance: typeof nested_value === "number" ? nested_value : 0,
     interest_rate: 0,
     lender_name: key,
