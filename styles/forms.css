@@ -97,6 +97,28 @@ textarea.form-control {
   line-height: 1.5;
 }
 
+.form-field.is-incomplete .form-helper {
+  color: #a16207;
+}
+
+.form-control.is-incomplete {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+
+.form-control.is-incomplete:focus {
+  border-color: #b45309;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.14);
+}
+
+.dynamic-balance-field {
+  align-content: start;
+}
+
+.dynamic-balance-field .action-button {
+  justify-self: start;
+}
+
 .section-note {
   display: flex;
   flex-direction: column;
@@ -117,7 +139,8 @@ textarea.form-control {
   font-size: 0.825rem;
 }
 
-.conditional-section.is-hidden {
+.conditional-section.is-hidden,
+.form-section.is-hidden {
   display: none;
 }
 

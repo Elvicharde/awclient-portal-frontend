@@ -497,7 +497,7 @@
               <div class="form-section">
                 <div class="form-grid">
                   <label class="form-field">
-                    <span>Monthly salary after tax</span>
+                    <span>Client 1 monthly inflow / salary</span>
                     <input
                       id="monthly-salary"
                       class="form-control"
@@ -507,11 +507,31 @@
                     />
                   </label>
                   <label class="form-field">
-                    <span>Agreed monthly expense budget</span>
+                    <span>Client 1 monthly expense / outflow</span>
                     <input
                       id="expense-budget"
                       class="form-control"
                       name="expense_budget"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field conditional-section spouse-financial-field">
+                    <span>Client 2 monthly inflow / salary</span>
+                    <input
+                      id="client2-monthly-salary"
+                      class="form-control spouse-financial-input"
+                      name="client2_monthly_salary"
+                      type="text"
+                      inputmode="decimal"
+                    />
+                  </label>
+                  <label class="form-field conditional-section spouse-financial-field">
+                    <span>Client 2 monthly expense / outflow</span>
+                    <input
+                      id="client2-expense-budget"
+                      class="form-control spouse-financial-input"
+                      name="client2_expense_budget"
                       type="text"
                       inputmode="decimal"
                     />

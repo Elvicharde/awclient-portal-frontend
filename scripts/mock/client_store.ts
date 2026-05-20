@@ -51,11 +51,12 @@ function get_client_name(payload: ClientPayload): string {
 
 function create_payload_from_summary(name: string): ClientPayload {
   const [first_name = "", ...last_name_parts] = name.split(" ");
+  const is_married_household = name === "Anderson Family Trust";
 
   return {
     account_structure: {
-      non_retirement_accounts: ["Checking"],
-      retirement_accounts: [],
+      non_retirement_accounts: ["Brokerage", "Checking", "Savings"],
+      retirement_accounts: ["IRA", "Roth IRA", "401K"],
     },
     client_1: {
       date_of_birth: "1970-01-01",
@@ -65,16 +66,44 @@ function create_payload_from_summary(name: string): ClientPayload {
       phone: "",
       ssn_last_four: "",
     },
-    client_2: null,
-    liabilities: [],
-    marital_status: "Single",
+    client_2: is_married_household
+      ? {
+          date_of_birth: "1972-04-12",
+          email: `spouse.${name.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+          first_name: "Jordan",
+          last_name: last_name_parts.join(" ") || "Client",
+          phone: "",
+          ssn_last_four: "",
+        }
+      : null,
+    liabilities: [
+      {
+        balance: 308000,
+        interest_rate: 4.85,
+        lender_name: "Primary mortgage lender",
+        liability_type: "Mortgage",
+        monthly_payment: 2450,
+      },
+      {
+        balance: 6200,
+        interest_rate: 18.4,
+        lender_name: "Credit card issuer",
+        liability_type: "Credit card",
+        monthly_payment: 300,
+      },
+    ],
+    marital_status: is_married_household ? "Married" : "Single",
     static_financial_data: {
-      monthly_expense_budget: 0,
-      monthly_salary_after_tax: 0,
-      private_reserve_target: 0,
+      client_2_monthly_expense_budget: is_married_household ? 5200 : 0,
+      client_2_monthly_salary_after_tax: is_married_household ? 8000 : 0,
+      monthly_expense_budget: 9000,
+      monthly_salary_after_tax: 15000,
+      private_reserve_target: 54000,
     },
     trust_details: {
-      has_trust: false,
+      has_trust: true,
+      property_address: "100 Main Street",
+      trust_name: `${name} Trust`,
     },
   };
 }

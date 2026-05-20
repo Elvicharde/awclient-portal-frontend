@@ -36,6 +36,8 @@ export interface Liability {
 export interface StaticFinancialData {
   monthly_salary_after_tax: number;
   monthly_expense_budget: number;
+  client_2_monthly_salary_after_tax?: number;
+  client_2_monthly_expense_budget?: number;
   private_reserve_target: number;
   notes?: string;
 }

@@ -1,43 +1,122 @@
 import { get_client_by_id, get_clients } from "./mock/client_store.js";
-import { mock_monthly_logs, type MockMonthlyLog } from "./mock/logs.js";
 import { format_currency, parse_currency, set_button_loading } from "./utils/dom.js";
 import { close_modal, open_modal } from "./utils/modal.js";
 import { show_toast } from "./utils/toast.js";
+import type { ClientSummary, Liability } from "./types/client.js";
+
+const quarter_labels: Record<string, string> = {
+  Q1: "Q1 — Jan 1 to Mar 31",
+  Q2: "Q2 — Apr 1 to Jun 30",
+  Q3: "Q3 — Jul 1 to Sep 30",
+  Q4: "Q4 — Oct 1 to Dec 31",
+};
+
+const client_1_retirement_fields = [
+  "client1_ira",
+  "client1_roth_ira",
+  "client1_401k",
+  "client1_pension",
+];
+
+const client_2_retirement_fields = [
+  "client2_ira",
+  "client2_roth_ira",
+  "client2_401k",
+  "client2_pension",
+];
+
+const non_retirement_fields = [
+  "brokerage",
+  "joint_brokerage",
+  "checking",
+  "savings",
+];
+
+const liability_fields = [
+  "mortgage_balance",
+  "auto_loan_balance",
+  "credit_card_balance",
+  "personal_loan_balance",
+  "other_liability_balance",
+];
+
+const account_field_map: Record<string, string> = {
+  "401K": "client1_401k",
+  Brokerage: "brokerage",
+  Checking: "checking",
+  IRA: "client1_ira",
+  Pension: "client1_pension",
+  "Joint Brokerage": "joint_brokerage",
+  "Roth IRA": "client1_roth_ira",
+  Savings: "savings",
+};
+
+const liability_field_map: Record<string, string> = {
+  "Auto loan": "auto_loan_balance",
+  "Credit card": "credit_card_balance",
+  Mortgage: "mortgage_balance",
+  Other: "other_liability_balance",
+  "Personal loan": "personal_loan_balance",
+};
 
 export function initialize_monthly_logs_page(): void {
-  populate_monthly_log_controls();
-  initialize_monthly_log_selectors();
+  populate_quarterly_log_controls();
+  initialize_quarterly_log_selectors();
   initialize_collapsible_sections();
-  initialize_monthly_log_actions();
-  load_selected_log();
+  initialize_quarterly_log_actions();
+  load_selected_client_static_data();
+  update_quarter_feedback();
+  update_quarterly_calculations();
 
-  console.log("Monthly logs page initialized");
+  console.log("Quarterly logs page initialized");
 }
 
-function populate_monthly_log_controls(): void {
+function populate_quarterly_log_controls(): void {
   const client_select = document.getElementById("monthly-log-client");
 
   if (!(client_select instanceof HTMLSelectElement)) {
     return;
   }
 
-  const clients = get_clients();
-
-  client_select.innerHTML = clients
+  client_select.innerHTML = get_clients()
     .map((client) => `<option value="${client.id}">${client.name}</option>`)
     .join("");
 }
 
-function initialize_monthly_log_selectors(): void {
+function initialize_quarterly_log_selectors(): void {
   const client_select = document.getElementById("monthly-log-client");
-  const month_select = document.getElementById("monthly-log-month");
+  const quarter_select = document.getElementById("monthly-log-quarter");
 
-  [client_select, month_select].forEach((control) => {
-    control?.addEventListener("change", load_selected_log);
+  client_select?.addEventListener("change", () => {
+    load_selected_client_static_data();
+    update_quarterly_calculations();
+  });
+
+  quarter_select?.addEventListener("change", () => {
+    update_quarter_feedback();
+    update_quarterly_calculations();
   });
 
   document.querySelectorAll<HTMLInputElement>("[data-log-field]").forEach((input) => {
-    input.addEventListener("input", update_financial_summary);
+    input.addEventListener("input", () => {
+      update_field_completion(input);
+      update_quarterly_calculations();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-use-last]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const field = button.dataset.useLast;
+      const input = field ? get_log_input(field) : null;
+
+      if (!input) {
+        return;
+      }
+
+      input.value = format_currency(parse_currency(input.dataset.lastValue ?? "0"));
+      update_field_completion(input);
+      update_quarterly_calculations();
+    });
   });
 }
 
@@ -52,7 +131,7 @@ function initialize_collapsible_sections(): void {
   });
 }
 
-function initialize_monthly_log_actions(): void {
+function initialize_quarterly_log_actions(): void {
   const save_button = document.getElementById("save-draft-button");
   const generate_button = document.getElementById("generate-report-button");
 
@@ -62,12 +141,20 @@ function initialize_monthly_log_actions(): void {
 
       window.setTimeout(() => {
         set_button_loading(save_button, false);
-        show_toast({ message: "Draft saved", variant: "success" });
+        show_toast({ message: "Quarterly draft saved", variant: "success" });
       }, 650);
     });
   }
 
   generate_button?.addEventListener("click", () => {
+    if (!validate_required_quarterly_fields()) {
+      show_toast({
+        message: "Complete all required quarterly balances before generating the report.",
+        variant: "error",
+      });
+      return;
+    }
+
     open_modal("generate-report-modal");
   });
 
@@ -78,17 +165,26 @@ function initialize_monthly_log_actions(): void {
       return;
     }
 
+    if (!validate_required_quarterly_fields()) {
+      close_modal();
+      show_toast({
+        message: "Complete all required quarterly balances before generating the report.",
+        variant: "error",
+      });
+      return;
+    }
+
     set_button_loading(target, true, "Generating");
 
     window.setTimeout(() => {
       set_button_loading(target, false);
       close_modal();
-      show_toast({ message: "Report generated", variant: "success" });
+      show_toast({ message: `${get_selected_quarter()} report generated`, variant: "success" });
     }, 900);
   });
 }
 
-function load_selected_log(): void {
+function load_selected_client_static_data(): void {
   const client_select = document.getElementById("monthly-log-client");
 
   if (!(client_select instanceof HTMLSelectElement)) {
@@ -96,50 +192,280 @@ function load_selected_log(): void {
   }
 
   const selected_client = get_client_by_id(client_select.value);
-  const selected_log = mock_monthly_logs.find((log) => log.client === selected_client?.name)
-    ?? mock_monthly_logs[0];
 
-  set_log_values(selected_log);
-  update_financial_summary();
+  clear_prefilled_quarterly_fields();
+
+  if (!selected_client) {
+    update_household_visibility(false);
+    return;
+  }
+
+  update_household_visibility(selected_client.payload.marital_status === "Married");
+  prefill_static_financial_data(selected_client);
+  prefill_account_structure(selected_client);
+  prefill_trust_details(selected_client);
+  prefill_liability_structure(selected_client.payload.liabilities);
 }
 
-function set_log_values(log: MockMonthlyLog): void {
-  set_field_value("cash", log.cash);
-  set_field_value("investments", log.investments);
-  set_field_value("loans", log.loans);
-  set_field_value("obligations", log.obligations);
-  set_field_value("contributions", log.contributions);
-  set_field_value("adjustments", log.adjustments);
-}
+function update_quarter_feedback(): void {
+  const quarter = get_selected_quarter();
+  const label = quarter_labels[quarter] ?? quarter_labels.Q1;
+  const generate_button = document.getElementById("generate-report-button");
 
-function set_field_value(field: string, value: number): void {
-  const input = document.querySelector<HTMLInputElement>(`[data-log-field="${field}"]`);
+  set_text("selected-quarter-feedback", `Selected quarter: ${label}`);
 
-  if (input) {
-    input.value = format_currency(value);
+  if (generate_button) {
+    generate_button.textContent = `Generate ${quarter} Report`;
   }
 }
 
-function update_financial_summary(): void {
-  const assets = get_field_total(["cash", "investments"]);
-  const liabilities = get_field_total(["loans", "obligations"]);
-  const contributions = get_field_total(["contributions", "adjustments"]);
-  const net_position = assets - liabilities;
-  const mock_change = net_position > 0 ? "+2.4%" : "0.0%";
+function update_quarterly_calculations(): void {
+  const is_married = get_selected_client()?.payload.marital_status === "Married";
+  const inflow_fields = is_married
+    ? ["client1_quarterly_inflow", "client2_quarterly_inflow"]
+    : ["client1_quarterly_inflow"];
+  const outflow_fields = is_married
+    ? ["client1_quarterly_outflow", "client2_quarterly_outflow"]
+    : ["client1_quarterly_outflow"];
+  const inflow = get_field_total(inflow_fields);
+  const outflow = get_field_total(outflow_fields);
+  const insurance_deductible = get_field_total(["insurance_deductible"]);
+  const monthly_expense_basis = outflow / 3;
+  const reserve_target = (6 * monthly_expense_basis) + insurance_deductible;
+  const excess = inflow - outflow;
 
-  set_text("assets-total", format_currency(assets));
+  const client_1_retirement = get_field_total(client_1_retirement_fields);
+  const client_2_retirement = is_married ? get_field_total(client_2_retirement_fields) : 0;
+  const non_retirement = get_field_total(non_retirement_fields);
+  const trust_total = get_field_total(["trust_property_value"]);
+  const liabilities = get_field_total(liability_fields);
+  const grand_total_net_worth = client_1_retirement
+    + client_2_retirement
+    + non_retirement
+    + trust_total;
+
+  set_text("inflow-total", format_currency(inflow));
+  set_text("expense-total", format_currency(outflow));
+  set_text("reserve-total", format_currency(reserve_target));
+  set_text("excess-preview", format_currency(excess));
+  set_text("reserve-target-preview", format_currency(reserve_target));
+  set_text("client1-retirement-total", format_currency(client_1_retirement));
+  set_text("client2-retirement-total", format_currency(client_2_retirement));
+  set_text("non-retirement-total", format_currency(non_retirement));
+  set_text("trust-total", format_currency(trust_total));
+  set_text("grand-total-net-worth", format_currency(grand_total_net_worth));
   set_text("liabilities-total", format_currency(liabilities));
-  set_text("contributions-total", format_currency(contributions));
-  set_text("net-position-preview", format_currency(net_position));
-  set_text("change-preview", mock_change);
+  update_required_quarterly_field_states();
+}
+
+function validate_required_quarterly_fields(): boolean {
+  return update_required_quarterly_field_states();
+}
+
+function update_required_quarterly_field_states(): boolean {
+  const required_inputs = document.querySelectorAll<HTMLInputElement>("[data-required-log]:not(:disabled)");
+  let completed_count = 0;
+  let is_valid = true;
+
+  required_inputs.forEach((input) => {
+    const is_complete = is_complete_required_input(input);
+
+    input.classList.toggle("is-incomplete", !is_complete);
+    input.closest(".form-field")?.classList.toggle("is-incomplete", !is_complete);
+
+    if (is_complete) {
+      completed_count += 1;
+    }
+
+    if (!is_complete) {
+      is_valid = false;
+    }
+  });
+
+  update_completion_tracker(completed_count, required_inputs.length);
+
+  const status = document.getElementById("quarterly-review-status");
+
+  if (status) {
+    status.textContent = is_valid ? "Ready" : "Incomplete";
+    status.className = `badge ${is_valid ? "badge-success" : "badge-warning"}`;
+  }
+
+  return is_valid;
+}
+
+function update_field_completion(input: HTMLInputElement): void {
+  if (!input.matches("[data-required-log]")) {
+    return;
+  }
+
+  const is_complete = is_complete_required_input(input);
+
+  input.classList.toggle("is-incomplete", !is_complete);
+  input.closest(".form-field")?.classList.toggle("is-incomplete", !is_complete);
+}
+
+function is_complete_required_input(input: HTMLInputElement): boolean {
+  if (input.value.trim().length === 0) {
+    return false;
+  }
+
+  const normalized_value = input.value.replace(/[^0-9.-]/g, "");
+
+  return normalized_value.length > 0 && Number.isFinite(Number(normalized_value));
+}
+
+function update_completion_tracker(completed_count: number, total_count: number): void {
+  const tracker = document.getElementById("quarterly-completion-tracker");
+  const percent_element = document.getElementById("quarterly-completion-percent");
+  const progress_ring = document.getElementById("quarterly-completion-ring-progress");
+  const percent = total_count > 0 ? Math.round((completed_count / total_count) * 100) : 0;
+  const radius = 30;
+  const circumference = 2 * Math.PI * radius;
+
+  if (percent_element) {
+    percent_element.textContent = `${percent}%`;
+  }
+
+  if (progress_ring instanceof SVGCircleElement) {
+    progress_ring.style.strokeDasharray = `${circumference}`;
+    progress_ring.style.strokeDashoffset = `${circumference - (percent / 100) * circumference}`;
+  }
+
+  if (tracker) {
+    tracker.classList.toggle("is-complete", percent === 100);
+  }
+}
+
+function get_selected_quarter(): string {
+  const quarter_select = document.getElementById("monthly-log-quarter");
+
+  return quarter_select instanceof HTMLSelectElement ? quarter_select.value : "Q1";
 }
 
 function get_field_total(fields: string[]): number {
   return fields.reduce((total, field) => {
-    const input = document.querySelector<HTMLInputElement>(`[data-log-field="${field}"]`);
+    const input = get_log_input(field);
 
     return total + (input ? parse_currency(input.value) : 0);
   }, 0);
+}
+
+function set_field_value(field: string, value: number): void {
+  const input = get_log_input(field);
+
+  if (input) {
+    input.value = value > 0 ? format_currency(value) : "";
+    update_field_completion(input);
+  }
+}
+
+function clear_prefilled_quarterly_fields(): void {
+  document.querySelectorAll<HTMLInputElement>("[data-log-field]").forEach((input) => {
+    input.value = "";
+    update_field_completion(input);
+  });
+}
+
+function prefill_static_financial_data(client: ClientSummary): void {
+  const static_data = client.payload.static_financial_data;
+  const client_1_quarterly_inflow = static_data.monthly_salary_after_tax * 3;
+  const client_1_quarterly_outflow = static_data.monthly_expense_budget * 3;
+  const client_2_quarterly_inflow = (static_data.client_2_monthly_salary_after_tax ?? 0) * 3;
+  const client_2_quarterly_outflow = (static_data.client_2_monthly_expense_budget ?? 0) * 3;
+
+  set_field_value("client1_quarterly_inflow", client_1_quarterly_inflow);
+  set_field_value("client1_quarterly_outflow", client_1_quarterly_outflow);
+  set_field_value("client2_quarterly_inflow", client_2_quarterly_inflow);
+  set_field_value("client2_quarterly_outflow", client_2_quarterly_outflow);
+}
+
+function prefill_account_structure(client: ClientSummary): void {
+  const accounts = [
+    ...client.payload.account_structure.retirement_accounts,
+    ...client.payload.account_structure.non_retirement_accounts,
+  ];
+
+  accounts.forEach((account) => {
+    const field = account_field_map[account];
+    const input = field ? get_log_input(field) : null;
+
+    if (!input) {
+      return;
+    }
+
+    set_field_value(field, parse_currency(input.dataset.lastValue ?? "0"));
+  });
+}
+
+function prefill_trust_details(client: ClientSummary): void {
+  if (!client.payload.trust_details.has_trust) {
+    return;
+  }
+
+  const input = get_log_input("trust_property_value");
+
+  set_field_value("trust_property_value", parse_currency(input?.dataset.lastValue ?? "0"));
+}
+
+function prefill_liability_structure(liabilities: Liability[]): void {
+  liabilities.forEach((liability) => {
+    const field = liability_field_map[liability.liability_type] ?? "other_liability_balance";
+
+    set_field_value(field, liability.balance);
+  });
+}
+
+function get_log_input(field: string): HTMLInputElement | null {
+  return document.querySelector<HTMLInputElement>(`[data-log-field="${field}"]`);
+}
+
+function get_selected_client(): ClientSummary | undefined {
+  const client_select = document.getElementById("monthly-log-client");
+
+  return client_select instanceof HTMLSelectElement
+    ? get_client_by_id(client_select.value)
+    : undefined;
+}
+
+function update_household_visibility(is_married: boolean): void {
+  const client_1_inflow_label = document.querySelector("[data-client1-inflow-label]");
+  const client_1_outflow_label = document.querySelector("[data-client1-outflow-label]");
+
+  if (client_1_inflow_label) {
+    client_1_inflow_label.textContent = is_married
+      ? "Quarterly inflow (Client 1)"
+      : "Quarterly inflow";
+  }
+
+  if (client_1_outflow_label) {
+    client_1_outflow_label.textContent = is_married
+      ? "Quarterly expense / outflow (Client 1)"
+      : "Quarterly expense / outflow";
+  }
+
+  document.querySelectorAll<HTMLElement>(".married-quarterly-field").forEach((field) => {
+    field.classList.toggle("is-hidden", !is_married);
+  });
+
+  document.querySelectorAll<HTMLInputElement>(".married-quarterly-input").forEach((input) => {
+    input.disabled = !is_married;
+  });
+
+  const client_2_section = document.getElementById("client2-retirement-section");
+
+  client_2_section?.classList.toggle("is-hidden", !is_married);
+  client_2_retirement_fields.forEach((field) => {
+    const input = get_log_input(field);
+
+    if (input) {
+      input.disabled = !is_married;
+      if (!is_married) {
+        input.value = "";
+        update_field_completion(input);
+      }
+    }
+  });
 }
 
 function set_text(id: string, value: string): void {

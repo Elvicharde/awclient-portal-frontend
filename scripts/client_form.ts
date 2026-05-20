@@ -163,6 +163,14 @@ function populate_edit_profile(client_id: string): void {
   set_control_value("property_zip", payload.trust_details.zip ?? "");
   set_control_value("monthly_salary", String(payload.static_financial_data.monthly_salary_after_tax || ""));
   set_control_value("expense_budget", String(payload.static_financial_data.monthly_expense_budget || ""));
+  set_control_value(
+    "client2_monthly_salary",
+    String(payload.static_financial_data.client_2_monthly_salary_after_tax || ""),
+  );
+  set_control_value(
+    "client2_expense_budget",
+    String(payload.static_financial_data.client_2_monthly_expense_budget || ""),
+  );
   set_control_value("reserve_target", String(payload.static_financial_data.private_reserve_target || ""));
   set_control_value("financial_notes", payload.static_financial_data.notes ?? "");
 
@@ -195,6 +203,9 @@ function update_spouse_section(): void {
   const is_married = marital_status instanceof HTMLSelectElement && marital_status.value === "Married";
 
   spouse_section?.classList.toggle("is-hidden", !is_married);
+  document.querySelectorAll<HTMLElement>(".spouse-financial-field").forEach((field) => {
+    field.classList.toggle("is-hidden", !is_married);
+  });
 
   if (badge) {
     badge.textContent = is_married ? "Married household" : "Single client";
@@ -203,6 +214,11 @@ function update_spouse_section(): void {
 
   document.querySelectorAll<HTMLInputElement>(".spouse-field").forEach((field) => {
     field.required = is_married && field.id !== "client2-middle-name";
+    field.disabled = !is_married;
+  });
+
+  document.querySelectorAll<HTMLInputElement>(".spouse-financial-input").forEach((field) => {
+    field.required = is_married;
     field.disabled = !is_married;
   });
 }
@@ -281,6 +297,12 @@ function build_client_payload(): ClientPayload {
     liabilities: [build_liability()],
     marital_status,
     static_financial_data: {
+      client_2_monthly_expense_budget: marital_status === "Married"
+        ? parse_number(get_input_value("client2-expense-budget"))
+        : 0,
+      client_2_monthly_salary_after_tax: marital_status === "Married"
+        ? parse_number(get_input_value("client2-monthly-salary"))
+        : 0,
       monthly_expense_budget: parse_number(get_input_value("expense-budget")),
       monthly_salary_after_tax: parse_number(get_input_value("monthly-salary")),
       notes: get_textarea_value("financial-notes"),
@@ -370,6 +392,14 @@ function validate_client_payload(payload: ClientPayload): string[] {
 
     if (spouse && !looks_like_email(spouse.email ?? "")) {
       errors.push("Client 2 email must look like an email address");
+    }
+
+    if (!payload.static_financial_data.client_2_monthly_salary_after_tax) {
+      errors.push("Client 2 monthly inflow is required for married clients");
+    }
+
+    if (!payload.static_financial_data.client_2_monthly_expense_budget) {
+      errors.push("Client 2 monthly expense is required for married clients");
     }
   }
 
