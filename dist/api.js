@@ -8,6 +8,9 @@ export async function api_get(path, timeout_ms = DEFAULT_TIMEOUT_MS) {
 export async function api_post(path, body, timeout_ms = DEFAULT_TIMEOUT_MS) {
     return api_request("POST", path, body, timeout_ms);
 }
+export async function api_put(path, body, timeout_ms = DEFAULT_TIMEOUT_MS) {
+    return api_request("PUT", path, body, timeout_ms);
+}
 async function api_request(method, path, body, timeout_ms) {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), timeout_ms);
@@ -39,7 +42,8 @@ async function api_request(method, path, body, timeout_ms) {
     }
 }
 function get_api_base_url() {
-    const configured_api_url = window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL?.trim();
+    const configured_api_url = (window.__APP_CONFIG__?.API_BASE_URL
+        ?? window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL)?.trim();
     if (configured_api_url) {
         return configured_api_url;
     }

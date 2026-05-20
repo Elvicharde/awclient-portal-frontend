@@ -279,6 +279,13 @@ textarea.form-control {
   box-shadow: var(--shadow-drawer);
 }
 
+.floating-action-menu {
+  position: fixed;
+  top: auto;
+  right: auto;
+  z-index: 80;
+}
+
 .action-menu-list[hidden] {
   display: none;
 }

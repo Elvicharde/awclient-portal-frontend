@@ -9,6 +9,8 @@ type ClientSortKey = "name" | "status" | "advisor" | "last_updated";
 let clients: ClientSummary[] = [];
 let sort_key: ClientSortKey = "name";
 let sort_direction: "asc" | "desc" = "asc";
+let active_action_client_id: string | null = null;
+let active_action_button: HTMLButtonElement | null = null;
 
 export function initialize_clients_page(): void {
   const table_body = document.getElementById("clients-table-body");
@@ -90,13 +92,11 @@ function initialize_client_table_actions(): void {
     const menu_toggle = target.closest<HTMLButtonElement>("[data-action-menu-toggle]");
 
     if (menu_toggle) {
-      const menu = menu_toggle.nextElementSibling;
+      const is_current_menu_open = active_action_button === menu_toggle;
+      close_action_menus();
 
-      if (menu instanceof HTMLElement) {
-        const is_open = !menu.hidden;
-        close_action_menus();
-        menu.hidden = is_open;
-        menu_toggle.setAttribute("aria-expanded", String(!is_open));
+      if (!is_current_menu_open && client) {
+        open_floating_action_menu(menu_toggle, client.id);
       }
 
       return;
@@ -116,10 +116,46 @@ function initialize_client_table_actions(): void {
   });
 
   document.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element) || !event.target.closest(".action-menu")) {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+      close_action_menus();
+      return;
+    }
+
+    const action_button = target.closest<HTMLButtonElement>("[data-floating-client-action]");
+
+    if (action_button) {
+      const client = active_action_client_id ? find_client(active_action_client_id) : undefined;
+      const action = action_button.dataset.floatingClientAction;
+
+      if (action === "view" && client) {
+        populate_client_modal(client);
+        open_modal("view-client-modal");
+        close_action_menus();
+      }
+
+      if (action === "edit" && client) {
+        window.location.href = `/pages/client_form.html?mode=edit&id=${encodeURIComponent(client.id)}`;
+        close_action_menus();
+      }
+
+      return;
+    }
+
+    if (!target.closest(".action-menu") && !target.closest(".floating-action-menu")) {
       close_action_menus();
     }
   });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      close_action_menus();
+    }
+  });
+
+  window.addEventListener("resize", close_action_menus);
+  window.addEventListener("scroll", close_action_menus, true);
 }
 
 function initialize_client_navigation(): void {
@@ -203,10 +239,6 @@ function render_client_row(client: ClientSummary): string {
           <button class="action-button" type="button" data-action-menu-toggle aria-expanded="false">
             Actions
           </button>
-          <div class="action-menu-list" hidden>
-            <button type="button" data-client-action="view">View</button>
-            <button type="button" data-client-action="edit">Edit</button>
-          </div>
         </div>
       </td>
     </tr>
@@ -270,15 +302,66 @@ function find_client(client_id: string | undefined): ClientSummary | undefined {
 }
 
 function close_action_menus(): void {
-  document.querySelectorAll<HTMLElement>(".action-menu-list").forEach((menu) => {
-    menu.hidden = true;
-  });
+  const floating_menu = document.getElementById("clients-floating-action-menu");
+
+  if (floating_menu instanceof HTMLElement) {
+    floating_menu.hidden = true;
+  }
 
   document.querySelectorAll<HTMLButtonElement>("[data-action-menu-toggle]").forEach((button) => {
     button.setAttribute("aria-expanded", "false");
   });
+
+  active_action_client_id = null;
+  active_action_button = null;
 }
 
 function get_error_message(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
+}
+
+function open_floating_action_menu(button: HTMLButtonElement, client_id: string): void {
+  const menu = get_floating_action_menu();
+  const button_rect = button.getBoundingClientRect();
+  const spacing = 8;
+
+  active_action_client_id = client_id;
+  active_action_button = button;
+  button.setAttribute("aria-expanded", "true");
+  menu.hidden = false;
+
+  const menu_width = menu.offsetWidth;
+  const menu_height = menu.offsetHeight;
+  const viewport_padding = 12;
+  const left = Math.min(
+    Math.max(viewport_padding, button_rect.right - menu_width),
+    window.innerWidth - menu_width - viewport_padding,
+  );
+  const preferred_top = button_rect.bottom + spacing;
+  const top = preferred_top + menu_height > window.innerHeight - viewport_padding
+    ? Math.max(viewport_padding, button_rect.top - menu_height - spacing)
+    : preferred_top;
+
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+}
+
+function get_floating_action_menu(): HTMLElement {
+  const existing_menu = document.getElementById("clients-floating-action-menu");
+
+  if (existing_menu instanceof HTMLElement) {
+    return existing_menu;
+  }
+
+  const menu = document.createElement("div");
+  menu.id = "clients-floating-action-menu";
+  menu.className = "action-menu-list floating-action-menu";
+  menu.hidden = true;
+  menu.innerHTML = `
+    <button type="button" data-floating-client-action="view">View</button>
+    <button type="button" data-floating-client-action="edit">Edit</button>
+  `;
+  document.body.append(menu);
+
+  return menu;
 }

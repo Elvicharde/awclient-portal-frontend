@@ -1,4 +1,4 @@
-import { api_get } from "../api.js";
+import { api_get, api_post, api_put } from "../api.js";
 import type {
   ClientPayload,
   ClientPerson,
@@ -48,6 +48,31 @@ export async function fetch_client_by_id(id: string): Promise<ClientSummary | un
   return normalize_client(response) ?? undefined;
 }
 
+export async function create_client(payload: ClientPayload): Promise<ClientSummary> {
+  const response = await api_post<unknown>("/api/clients", to_backend_client_payload(payload));
+  const client = normalize_client(response);
+
+  if (!client) {
+    throw new Error("Backend returned an invalid client response");
+  }
+
+  return client;
+}
+
+export async function update_client(id: string, payload: ClientPayload): Promise<ClientSummary> {
+  const response = await api_put<unknown>(
+    `/api/clients/${encodeURIComponent(id)}`,
+    to_backend_client_payload(payload),
+  );
+  const client = normalize_client(response);
+
+  if (!client) {
+    throw new Error("Backend returned an invalid client response");
+  }
+
+  return client;
+}
+
 function get_items(response: unknown): unknown[] {
   if (Array.isArray(response)) {
     return response;
@@ -58,6 +83,81 @@ function get_items(response: unknown): unknown[] {
   }
 
   return [];
+}
+
+function to_backend_client_payload(payload: ClientPayload): Record<string, unknown> {
+  const is_married = payload.marital_status === "Married";
+  const spouse = is_married ? payload.client_2 : null;
+  const financial_data = payload.static_financial_data;
+
+  return {
+    client_1_monthly_expense_budget: financial_data.monthly_expense_budget,
+    client_1_monthly_salary_after_tax: financial_data.monthly_salary_after_tax,
+    client_2_monthly_expense_budget: is_married
+      ? financial_data.client_2_monthly_expense_budget ?? null
+      : null,
+    client_2_monthly_salary_after_tax: is_married
+      ? financial_data.client_2_monthly_salary_after_tax ?? null
+      : null,
+    date_of_birth: empty_to_null(payload.client_1.date_of_birth),
+    email: payload.client_1.email ?? "",
+    first_name: payload.client_1.first_name,
+    insurance_deductible_total: financial_data.insurance_deductible_total ?? null,
+    last_name: payload.client_1.last_name,
+    liabilities_json: to_liabilities_json(payload),
+    marital_status: is_married ? "married" : "single",
+    middle_name: empty_to_null(payload.client_1.middle_name),
+    non_retirement_accounts_json: to_account_flags(payload.account_structure.non_retirement_accounts),
+    phone: empty_to_null(payload.client_1.phone),
+    private_reserve_target: financial_data.private_reserve_target,
+    retirement_accounts_json: to_retirement_accounts_json(payload),
+    spouse_date_of_birth: empty_to_null(spouse?.date_of_birth),
+    spouse_email: is_married ? empty_to_null(spouse?.email) : null,
+    spouse_first_name: is_married ? spouse?.first_name ?? "" : null,
+    spouse_last_name: is_married ? spouse?.last_name ?? "" : null,
+    spouse_middle_name: is_married ? empty_to_null(spouse?.middle_name) : null,
+    spouse_phone: is_married ? empty_to_null(spouse?.phone) : null,
+    spouse_ssn_last_four: is_married ? empty_to_null(spouse?.ssn_last_four) : null,
+    ssn_last_four: empty_to_null(payload.client_1.ssn_last_four),
+    trust_details_json: payload.trust_details,
+  };
+}
+
+function to_retirement_accounts_json(payload: ClientPayload): Record<string, unknown> {
+  const client_1_accounts = payload.account_structure.client_1_retirement_accounts;
+  const client_2_accounts = payload.account_structure.client_2_retirement_accounts;
+
+  if (client_1_accounts?.length || client_2_accounts?.length) {
+    return {
+      client_1: client_1_accounts ?? [],
+      client_2: payload.marital_status === "Married" ? client_2_accounts ?? [] : [],
+    };
+  }
+
+  return to_account_flags(payload.account_structure.retirement_accounts);
+}
+
+function to_account_flags(accounts: string[]): Record<string, boolean> {
+  return accounts.reduce<Record<string, boolean>>((result, account) => {
+    result[account] = true;
+    return result;
+  }, {});
+}
+
+function to_liabilities_json(payload: ClientPayload): Record<string, number> {
+  return payload.liabilities.reduce<Record<string, number>>((result, liability) => {
+    if (liability.liability_type) {
+      result[liability.liability_type] = liability.balance;
+    }
+
+    return result;
+  }, {});
+}
+
+function empty_to_null(value: string | null | undefined): string | null {
+  const trimmed_value = value?.trim() ?? "";
+
+  return trimmed_value ? trimmed_value : null;
 }
 
 function normalize_client(value: unknown): ClientSummary | null {

@@ -25,24 +25,21 @@
               <p class="page-eyebrow">Reporting</p>
               <h1 id="page-title">Reports</h1>
               <p class="page-description">
-                Track generated reports and review report pipeline status.
+                View generated reports, check status, and download available files.
               </p>
             </div>
-            <button id="generate-report-button" class="button button-primary" type="button">
-              Generate Report
-            </button>
           </section>
 
           <section class="stats-grid" aria-label="Report summary">
             <article class="stat-card report-card">
-              <span class="stat-label">SACS Reports</span>
-              <strong id="sacs-report-stat" class="stat-value">0</strong>
-              <span class="stat-note">Available for download</span>
+              <span class="stat-label">Total Reports</span>
+              <strong id="total-report-stat" class="stat-value">0</strong>
+              <span class="stat-note">Generated report records</span>
             </article>
             <article class="stat-card report-card">
-              <span class="stat-label">TCC Reports</span>
-              <strong id="tcc-report-stat" class="stat-value">0</strong>
-              <span class="stat-note">Across active clients</span>
+              <span class="stat-label">Ready</span>
+              <strong id="ready-report-stat" class="stat-value">0</strong>
+              <span class="stat-note">Available for download</span>
             </article>
             <article class="stat-card report-card">
               <span class="stat-label">Generated This Month</span>
@@ -55,12 +52,13 @@
             <div class="card-header">
               <div>
                 <h2 id="reports-table-title">Recent Reports</h2>
-                <p>Mock report history for interface review.</p>
+                <p>Generated report history for review and download.</p>
               </div>
               <label class="filter-field">
                 <span class="sr-only">Filter report type</span>
                 <select id="report-type-filter" class="form-control">
                   <option value="all">All reports</option>
+                  <option value="Combined">Combined</option>
                   <option value="SACS">SACS</option>
                   <option value="TCC">TCC</option>
                 </select>
@@ -103,7 +101,7 @@
             </div>
             <div id="reports-empty-state" class="empty-state hidden">
               <h2>No reports found</h2>
-              <p>Change the report filter to view matching mock reports.</p>
+              <p>Change the report filter to view matching generated reports.</p>
             </div>
           </section>
         </main>
@@ -115,6 +113,4 @@
     <script src="/config.js"></script>
     <script type="module" src="/dist/index.js"></script>
   </body>
-</html>
-dy>
 </html>

@@ -1,5 +1,9 @@
-import { create_client, get_client_by_id, update_client } from "./mock/client_store.js";
-import { fetch_client_by_id } from "./services/client_service.js";
+import { get_client_by_id } from "./mock/client_store.js";
+import {
+  create_client,
+  fetch_client_by_id,
+  update_client,
+} from "./services/client_service.js";
 import type { ClientPayload, ClientPerson, MaritalStatus } from "./types/client.js";
 import { set_button_loading } from "./utils/dom.js";
 import { show_toast } from "./utils/toast.js";
@@ -95,13 +99,18 @@ function initialize_age_fields(): void {
 function initialize_form_actions(form_mode: { is_edit_mode: boolean; client_id: string | null }): void {
   const cancel_button = document.getElementById("cancel-client-form");
   const save_button = document.getElementById("save-client-form");
+  let is_saving = false;
 
   cancel_button?.addEventListener("click", () => {
     window.location.href = "/pages/clients.html";
   });
 
   if (save_button instanceof HTMLButtonElement) {
-    save_button.addEventListener("click", () => {
+    save_button.addEventListener("click", async () => {
+      if (is_saving) {
+        return;
+      }
+
       const payload = build_client_payload();
       const errors = validate_client_payload(payload);
 
@@ -110,22 +119,30 @@ function initialize_form_actions(form_mode: { is_edit_mode: boolean; client_id: 
         return;
       }
 
+      is_saving = true;
       set_button_loading(save_button, true, form_mode.is_edit_mode ? "Saving" : "Creating");
 
-      window.setTimeout(() => {
+      try {
         if (form_mode.is_edit_mode && form_mode.client_id) {
-          update_client(form_mode.client_id, payload);
+          await update_client(form_mode.client_id, payload);
         } else {
-          create_client(payload);
+          await create_client(payload);
         }
 
-        set_button_loading(save_button, false);
         show_toast({
           message: form_mode.is_edit_mode ? "Client changes saved" : "Client created",
           variant: "success",
         });
         window.location.href = "/pages/clients.html";
-      }, 700);
+      } catch (error) {
+        show_toast({
+          message: get_error_message(error),
+          variant: "error",
+        });
+      } finally {
+        is_saving = false;
+        set_button_loading(save_button, false);
+      }
     });
   }
 }
@@ -518,4 +535,12 @@ function set_text(id: string, value: string): void {
   if (element) {
     element.textContent = value;
   }
+}
+
+function get_error_message(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Client could not be saved";
 }

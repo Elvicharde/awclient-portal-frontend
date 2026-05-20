@@ -4,6 +4,9 @@ const DEFAULT_TIMEOUT_MS = 6000;
 
 declare global {
   interface Window {
+    __APP_CONFIG__?: {
+      API_BASE_URL?: string;
+    };
     AW_CLIENT_PORTAL_CONFIG?: {
       API_BASE_URL?: string;
     };
@@ -24,8 +27,16 @@ export async function api_post<T>(
   return api_request<T>("POST", path, body, timeout_ms);
 }
 
+export async function api_put<T>(
+  path: string,
+  body?: unknown,
+  timeout_ms = DEFAULT_TIMEOUT_MS,
+): Promise<T> {
+  return api_request<T>("PUT", path, body, timeout_ms);
+}
+
 async function api_request<T>(
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "PUT",
   path: string,
   body: unknown,
   timeout_ms: number,
@@ -65,7 +76,10 @@ async function api_request<T>(
 }
 
 function get_api_base_url(): string {
-  const configured_api_url = window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL?.trim();
+  const configured_api_url = (
+    window.__APP_CONFIG__?.API_BASE_URL
+    ?? window.AW_CLIENT_PORTAL_CONFIG?.API_BASE_URL
+  )?.trim();
 
   if (configured_api_url) {
     return configured_api_url;
